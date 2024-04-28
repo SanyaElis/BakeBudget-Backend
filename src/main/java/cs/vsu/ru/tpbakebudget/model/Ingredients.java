@@ -1,5 +1,6 @@
 package cs.vsu.ru.tpbakebudget.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,10 +24,12 @@ public class Ingredients {
     private double cost;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
     private Users user;
 
     @OneToMany(mappedBy = "pk.ingredient", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<IngredientsInProduct> ingredientsInProduct;
 
     public Ingredients(Long id, String name, double weight, double cost) {

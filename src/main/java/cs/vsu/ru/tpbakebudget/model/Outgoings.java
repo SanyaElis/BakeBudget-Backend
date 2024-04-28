@@ -18,21 +18,21 @@ public class Outgoings {
     private double cost;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "product_id")
     @JsonIgnore
-    private Users user;
+    private Products product;
 
-    public Outgoings(Long id, String name, double cost, Users user) {
+    public Outgoings(Long id, String name, double cost, Products product) {
         this.id = id;
         this.name = name;
         this.cost = cost;
-        this.user = user;
+        this.product = product;
     }
 
-    public Outgoings(String name, double cost, Users user) {
+    public Outgoings(String name, double cost, Products product) {
         this.name = name;
         this.cost = cost;
-        this.user = user;
+        this.product = product;
     }
 
     public Outgoings() {

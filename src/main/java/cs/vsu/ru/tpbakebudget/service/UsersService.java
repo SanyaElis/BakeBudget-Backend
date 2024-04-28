@@ -17,7 +17,7 @@ public interface UsersService {
 
     Users update(Long id, Users user);
 
-    void updatePassword(Long id, String oldPassword, String newPassword);
+    boolean updatePassword(Users user, String oldPassword, String newPassword);
 
     void delete(Long id);
 }

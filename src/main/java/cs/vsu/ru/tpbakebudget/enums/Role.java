@@ -1,4 +1,4 @@
-package cs.vsu.ru.tpbakebudget.security.enums;
+package cs.vsu.ru.tpbakebudget.enums;
 
 import org.springframework.security.core.GrantedAuthority;
 

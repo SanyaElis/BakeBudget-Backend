@@ -21,8 +21,9 @@ public class IngredientsServiceImpl implements IngredientsService {
         this.repository = repository;
     }
 
-    public List<Ingredients> findAll() {
-        return repository.findAll();
+    @Override
+    public List<Ingredients> findAllByUserId(Long id) {
+        return repository.findAllByUserId(id);
     }
 
     @Override
@@ -33,14 +34,11 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     public Ingredients update(Long id, @NotNull Ingredients newIngredient) {
         Ingredients ingredient = repository.findById(id).orElse(null);
-        if (ingredient == null){
+        if (ingredient == null) {
             return null;
-        }
-        else{
-            ingredient.setName(newIngredient.getName());
-            ingredient.setWeight(newIngredient.getWeight());
-            ingredient.setCost(newIngredient.getCost());
-            return repository.save(ingredient);
+        } else {
+            newIngredient.setId(id);
+            return repository.save(newIngredient);
         }
     }
 

@@ -30,6 +30,14 @@ public class Products {
     @JsonIgnore
     private List<IngredientsInProduct> ingredientsInProduct;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Outgoings> outgoings;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Orders> orders;
+
     public Products(Long id, String name, double weight, Users user) {
         this.id = id;
         this.name = name;
