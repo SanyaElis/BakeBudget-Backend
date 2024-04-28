@@ -16,4 +16,6 @@ public interface OutgoingsService {
     Outgoings update(Long id, Outgoings outgoing);
 
     void delete(Long id);
+
+    List<Outgoings> findByProductId(Long id);
 }

@@ -26,11 +26,12 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Products update(Long id, @NotNull Products newProduct) {
-        Products product = repository.findById(id).orElseThrow();
-        product.setName(newProduct.getName());
-        product.setWeight(newProduct.getWeight());
-        product.setMinioPictureName(newProduct.getMinioPictureName());
-        return repository.save(product);
+        Products product = repository.findById(id).orElse(null);
+        if (product == null) {
+            return null;
+        }
+        newProduct.setId(id);
+        return repository.save(newProduct);
     }
 
     @Override
@@ -49,17 +50,17 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
+    public List<Products> findAllByUserId(Long id) {
+        return repository.findAllByUserId(id);
+    }
+
+    @Override
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
-    public void setMinioName(Long id, String minioName) {
-        Products product = repository.findById(id).orElse(null);
-        if (product != null) {
-            product.setMinioPictureName(minioName);
-            repository.save(product);
-        } else {
-            throw new IllegalArgumentException();
-        }
+    public void setMinioName(Products product, String minioName) {
+        product.setMinioPictureName(minioName);
+        repository.save(product);
     }
 }

@@ -1,12 +1,11 @@
 package cs.vsu.ru.tpbakebudget.service.impl;
 
+import cs.vsu.ru.tpbakebudget.enums.Role;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import cs.vsu.ru.tpbakebudget.repository.UsersRepository;
-import cs.vsu.ru.tpbakebudget.security.enums.Role;
 import cs.vsu.ru.tpbakebudget.service.UsersService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -22,9 +21,9 @@ public class UsersServiceImpl implements UsersService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsersServiceImpl(UsersRepository usersRepository) {
+    public UsersServiceImpl(UsersRepository usersRepository, PasswordEncoder passwordEncoder) {
         this.repository = usersRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -59,7 +58,10 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public Users update(Long id, @NotNull Users newUser) {
-        Users user = repository.findById(id).orElseThrow();
+        Users user = repository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
         user.setUsername(newUser.getUsername());
         user.setEmail(newUser.getEmail());
         return repository.save(user);
@@ -70,12 +72,13 @@ public class UsersServiceImpl implements UsersService {
         repository.deleteById(id);
     }
 
-    public void updatePassword(Long id, String oldPassword, String newPassword) {
-        Users user = repository.findById(id).orElseThrow();
+    @Override
+    public boolean updatePassword(Users user, String oldPassword, String newPassword) {
         if (passwordEncoder.matches(oldPassword, user.getPassword())) {
             user.setPassword(passwordEncoder.encode(newPassword));
+            return true;
         } else {
-            throw new IllegalArgumentException("Old password is incorrect");
+            return false;
         }
     }
 }

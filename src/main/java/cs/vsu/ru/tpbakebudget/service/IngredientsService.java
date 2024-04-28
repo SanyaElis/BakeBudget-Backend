@@ -11,7 +11,7 @@ public interface IngredientsService {
 
     List<Ingredients> saveAll(List<Ingredients> ingredientsList);
 
-    List<Ingredients> findAll();
+    List<Ingredients> findAllByUserId(Long id);
 
     Ingredients update(Long id, Ingredients ingredient);
 

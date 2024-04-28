@@ -28,10 +28,12 @@ public class OutgoingsServiceImpl implements OutgoingsService {
 
     @Override
     public Outgoings update(Long id, @NotNull Outgoings newOutgoing) {
-        Outgoings outgoing = repository.findById(id).orElseThrow();
-        outgoing.setName(newOutgoing.getName());
-        outgoing.setCost(newOutgoing.getCost());
-        return repository.save(outgoing);
+        Outgoings outgoing = repository.findById(id).orElse(null);
+        if(outgoing == null){
+            return null;
+        }
+        newOutgoing.setId(id);
+        return repository.save(newOutgoing);
     }
 
     @Override
@@ -52,5 +54,10 @@ public class OutgoingsServiceImpl implements OutgoingsService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public List<Outgoings> findByProductId(Long id) {
+        return repository.findByProductId(id);
     }
 }

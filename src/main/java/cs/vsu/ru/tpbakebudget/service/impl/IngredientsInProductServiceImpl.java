@@ -42,10 +42,13 @@ public class IngredientsInProductServiceImpl implements IngredientsInProductServ
     }
 
     @Override
-    public void update(IngredientsInProductKey pk, @NotNull IngredientsInProduct newIngredientsInProduct) {
-        IngredientsInProduct ingredientsInProduct = repository.findById(pk).orElseThrow();
-        ingredientsInProduct.setWeight(newIngredientsInProduct.getWeight());
-        repository.save(ingredientsInProduct);
+    public IngredientsInProduct update(IngredientsInProductKey pk, @NotNull IngredientsInProduct newIngredientsInProduct) {
+        IngredientsInProduct ingredientsInProduct = repository.findById(pk).orElse(null);
+        if (ingredientsInProduct == null) {
+            return null;
+        }
+        newIngredientsInProduct.setPk(pk);
+        return repository.save(newIngredientsInProduct);
     }
 
     @Override

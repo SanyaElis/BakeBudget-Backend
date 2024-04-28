@@ -1,7 +1,7 @@
 package cs.vsu.ru.tpbakebudget.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import cs.vsu.ru.tpbakebudget.security.enums.Role;
+import cs.vsu.ru.tpbakebudget.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,16 +34,15 @@ public class Users implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Outgoings> outgoings;
+    private List<Ingredients> ingredients;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Ingredients> ingredients;
+    private List<Orders> orders;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
-
 
     public Users(Long id, String username, String email, String password) {
         this.id = id;
