@@ -19,6 +19,7 @@ public class Products {
     @Column(nullable = false)
     private double weight;
 
+    @Column
     private String minioPictureName;
 
     @ManyToOne

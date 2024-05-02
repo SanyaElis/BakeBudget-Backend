@@ -1,5 +1,6 @@
 package cs.vsu.ru.tpbakebudget.service.impl;
 
+import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.model.Ingredients;
 import cs.vsu.ru.tpbakebudget.repository.IngredientsRepository;
 import cs.vsu.ru.tpbakebudget.service.IngredientsService;
@@ -33,18 +34,14 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     public Ingredients update(Long id, @NotNull Ingredients newIngredient) {
-        Ingredients ingredient = repository.findById(id).orElse(null);
-        if (ingredient == null) {
-            return null;
-        } else {
-            newIngredient.setId(id);
-            return repository.save(newIngredient);
-        }
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Ingredient not found with id: " + id));
+        newIngredient.setId(id);
+        return repository.save(newIngredient);
     }
 
     @Override
     public Ingredients findById(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Ingredient not found with id: " + id));
     }
 
     @Override
@@ -54,7 +51,12 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     public void delete(Long id) {
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Ingredient not found with id: " + id));
         repository.deleteById(id);
     }
 
+    @Override
+    public List<Ingredients> findByIngredientsInProductPkProductId(Long productId) {
+        return repository.findByIngredientsInProductPkProductId(productId);
+    }
 }

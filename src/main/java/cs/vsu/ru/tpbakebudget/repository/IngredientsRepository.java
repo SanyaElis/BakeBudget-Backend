@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface IngredientsRepository extends JpaRepository<Ingredients, Long> {
     List<Ingredients> findAllByUserId(Long id);
+
+    List<Ingredients> findByIngredientsInProductPkProductId(Long productId);
 }

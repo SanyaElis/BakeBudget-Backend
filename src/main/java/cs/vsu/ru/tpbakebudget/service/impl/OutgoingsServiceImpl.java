@@ -1,5 +1,6 @@
 package cs.vsu.ru.tpbakebudget.service.impl;
 
+import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.model.Outgoings;
 import cs.vsu.ru.tpbakebudget.repository.OutgoingsRepository;
 import cs.vsu.ru.tpbakebudget.service.OutgoingsService;
@@ -28,10 +29,7 @@ public class OutgoingsServiceImpl implements OutgoingsService {
 
     @Override
     public Outgoings update(Long id, @NotNull Outgoings newOutgoing) {
-        Outgoings outgoing = repository.findById(id).orElse(null);
-        if(outgoing == null){
-            return null;
-        }
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Outgoing not found with id: " + id));
         newOutgoing.setId(id);
         return repository.save(newOutgoing);
     }
@@ -43,7 +41,7 @@ public class OutgoingsServiceImpl implements OutgoingsService {
 
     @Override
     public Outgoings findById(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Outgoing not found with id: " + id));
     }
 
     @Override
@@ -57,7 +55,7 @@ public class OutgoingsServiceImpl implements OutgoingsService {
     }
 
     @Override
-    public List<Outgoings> findByProductId(Long id) {
-        return repository.findByProductId(id);
+    public List<Outgoings> findAllByProductId(Long id) {
+        return repository.findAllByProductId(id);
     }
 }

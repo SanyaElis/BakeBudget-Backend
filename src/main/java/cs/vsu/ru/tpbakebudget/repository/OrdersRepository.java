@@ -5,6 +5,7 @@ import cs.vsu.ru.tpbakebudget.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findAllByUserId(Long id);
 
-    List<Orders> findByUserAndCreationDateBetweenAndFinishDateBetween(Users user, Date startCreatedAt, Date endCreatedAt, Date startFinishedAt, Date endFinishedAt);
+    List<Orders> findByUserIdAndCreationDateBetweenAndFinishDateBetween(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt);
 }

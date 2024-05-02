@@ -42,17 +42,21 @@ public class IngredientsInProductServiceImpl implements IngredientsInProductServ
     }
 
     @Override
-    public IngredientsInProduct update(IngredientsInProductKey pk, @NotNull IngredientsInProduct newIngredientsInProduct) {
-        IngredientsInProduct ingredientsInProduct = repository.findById(pk).orElse(null);
+    public IngredientsInProduct update(@NotNull IngredientsInProduct newIngredientsInProduct) {
+        IngredientsInProduct ingredientsInProduct = repository.findById(newIngredientsInProduct.getPk()).orElse(null);
         if (ingredientsInProduct == null) {
             return null;
         }
-        newIngredientsInProduct.setPk(pk);
         return repository.save(newIngredientsInProduct);
     }
 
     @Override
     public void delete(IngredientsInProductKey pk) {
         repository.deleteById(pk);
+    }
+
+    @Override
+    public List<IngredientsInProduct> findByPk_ProductId(Long productId) {
+        return repository.findByPk_ProductId(productId);
     }
 }

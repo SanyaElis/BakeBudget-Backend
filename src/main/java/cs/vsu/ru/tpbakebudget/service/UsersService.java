@@ -1,5 +1,6 @@
 package cs.vsu.ru.tpbakebudget.service;
 
+import cs.vsu.ru.tpbakebudget.enums.Role;
 import cs.vsu.ru.tpbakebudget.model.Users;
 
 import java.util.List;
@@ -15,9 +16,13 @@ public interface UsersService {
 
     List<Users> findAll();
 
-    Users update(Long id, Users user);
+    Users update(Users user);
 
     boolean updatePassword(Users user, String oldPassword, String newPassword);
+
+    String createGroupCode(Users user);
+
+    Users findByRoleAndGroupCode(Role role, String groupCode);
 
     void delete(Long id);
 }

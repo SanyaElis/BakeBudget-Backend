@@ -2,9 +2,8 @@ package cs.vsu.ru.tpbakebudget.service;
 
 import cs.vsu.ru.tpbakebudget.enums.OrderStatus;
 import cs.vsu.ru.tpbakebudget.model.Orders;
-import cs.vsu.ru.tpbakebudget.model.Users;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrdersService {
@@ -14,8 +13,6 @@ public interface OrdersService {
 
     List<Orders> saveAll(List<Orders> ordersList);
 
-    List<Orders> findAll();
-
     List<Orders> findAllByUserId(Long id);
 
     Orders update(Long id, Orders order);
@@ -24,7 +21,7 @@ public interface OrdersService {
 
     List<Orders> findByProductId(Long id);
 
-    List<Orders> findByUserAndCreationDateBetweenAndFinishDateBetween(Users user, Date startCreatedAt, Date endCreatedAt, Date startFinishedAt, Date endFinishedAt);
+    List<Orders> findByUserIdAndCreationDateBetweenAndFinishDateBetween(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt);
 
-    Orders updateOrderStatus(Long id, OrderStatus newStatus);
+    void updateOrderStatus(Long id, OrderStatus newStatus);
 }
