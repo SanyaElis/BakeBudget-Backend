@@ -28,6 +28,9 @@ public class Users implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private String groupCode;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Products> products;

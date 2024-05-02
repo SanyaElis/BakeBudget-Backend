@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface OutgoingsRepository extends JpaRepository<Outgoings, Long> {
-    List<Outgoings> findByProductId(Long productId);
+    List<Outgoings> findAllByProductId(Long productId);
 }

@@ -16,4 +16,6 @@ public interface IngredientsService {
     Ingredients update(Long id, Ingredients ingredient);
 
     void delete(Long id);
+
+    List<Ingredients> findByIngredientsInProductPkProductId(Long productId);
 }

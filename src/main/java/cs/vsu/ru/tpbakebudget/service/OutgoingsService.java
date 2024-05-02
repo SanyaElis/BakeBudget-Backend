@@ -17,5 +17,5 @@ public interface OutgoingsService {
 
     void delete(Long id);
 
-    List<Outgoings> findByProductId(Long id);
+    List<Outgoings> findAllByProductId(Long id);
 }

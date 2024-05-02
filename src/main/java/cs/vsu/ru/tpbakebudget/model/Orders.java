@@ -23,14 +23,14 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private double finalCost;
-
     private double costPrice;
 
     private double extraExpenses;
 
+    @Column(nullable = false)
     private double finalWeight;
 
+    @Column(nullable = false)
     private double marginFactor;
 
     @Temporal(TemporalType.DATE)
@@ -49,11 +49,10 @@ public class Orders {
     @JsonIgnore
     private Products product;
 
-    public Orders(String name, String description, OrderStatus status, double finalCost, double costPrice, double extraExpenses, double finalWeight, double marginFactor, LocalDate creationDate, LocalDate finishDate, Users user, Products product) {
+    public Orders(String name, String description, OrderStatus status, double costPrice, double extraExpenses, double finalWeight, double marginFactor, LocalDate creationDate, LocalDate finishDate, Users user, Products product) {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.finalCost = finalCost;
         this.costPrice = costPrice;
         this.extraExpenses = extraExpenses;
         this.finalWeight = finalWeight;

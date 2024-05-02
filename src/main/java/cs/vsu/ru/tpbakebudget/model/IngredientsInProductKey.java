@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class IngredientsInProductKey implements Serializable {
 
     @ManyToOne
-    @JoinColumn(name = "ingredient_id", nullable = true)
+    @JoinColumn(name = "ingredient_id", nullable = false)
     private Ingredients ingredient;
 
     @ManyToOne

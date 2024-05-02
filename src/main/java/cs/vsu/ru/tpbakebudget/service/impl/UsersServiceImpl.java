@@ -1,6 +1,7 @@
 package cs.vsu.ru.tpbakebudget.service.impl;
 
 import cs.vsu.ru.tpbakebudget.enums.Role;
+import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import cs.vsu.ru.tpbakebudget.repository.UsersRepository;
 import cs.vsu.ru.tpbakebudget.service.UsersService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Component
@@ -43,8 +45,9 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public Users findById(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
+
 
     @Override
     public List<Users> saveAll(List<Users> users) {
@@ -57,14 +60,8 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public Users update(Long id, @NotNull Users newUser) {
-        Users user = repository.findById(id).orElse(null);
-        if (user == null) {
-            return null;
-        }
-        user.setUsername(newUser.getUsername());
-        user.setEmail(newUser.getEmail());
-        return repository.save(user);
+    public Users update(@NotNull Users updatedUser) {
+        return repository.save(updatedUser);
     }
 
     @Override
@@ -80,5 +77,18 @@ public class UsersServiceImpl implements UsersService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String createGroupCode(Users user) {
+        String groupCode = UUID.randomUUID().toString();
+        user.setGroupCode(groupCode);
+        repository.save(user);
+        return groupCode;
+    }
+
+    @Override
+    public Users findByRoleAndGroupCode(Role role, String groupCode) {
+        return repository.findByRoleAndGroupCode(role, groupCode);
     }
 }

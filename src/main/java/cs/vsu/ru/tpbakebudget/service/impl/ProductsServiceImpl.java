@@ -1,5 +1,6 @@
 package cs.vsu.ru.tpbakebudget.service.impl;
 
+import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.model.Products;
 import cs.vsu.ru.tpbakebudget.repository.ProductsRepository;
 import cs.vsu.ru.tpbakebudget.service.ProductsService;
@@ -26,10 +27,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Products update(Long id, @NotNull Products newProduct) {
-        Products product = repository.findById(id).orElse(null);
-        if (product == null) {
-            return null;
-        }
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         newProduct.setId(id);
         return repository.save(newProduct);
     }
@@ -41,7 +39,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Products findById(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
     }
 
     @Override

@@ -14,7 +14,9 @@ public interface IngredientsInProductService {
 
     List<IngredientsInProduct> findAll();
 
-    IngredientsInProduct update(IngredientsInProductKey pk, IngredientsInProduct ingredientsInProduct);
+    IngredientsInProduct update(IngredientsInProduct ingredientsInProduct);
 
     void delete(IngredientsInProductKey pk);
+
+    List<IngredientsInProduct> findByPk_ProductId(Long productId);
 }
