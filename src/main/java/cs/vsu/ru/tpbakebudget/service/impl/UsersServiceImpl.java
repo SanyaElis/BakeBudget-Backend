@@ -91,4 +91,9 @@ public class UsersServiceImpl implements UsersService {
     public Users findByRoleAndGroupCode(Role role, String groupCode) {
         return repository.findByRoleAndGroupCode(role, groupCode);
     }
+
+    @Override
+    public List<Users> findAllByGroupCode(String groupCode) {
+        return repository.findAllByGroupCode(groupCode);
+    }
 }
