@@ -24,5 +24,7 @@ public interface UsersService {
 
     Users findByRoleAndGroupCode(Role role, String groupCode);
 
+    List<Users> findAllByGroupCode(String groupCode);
+
     void delete(Long id);
 }
