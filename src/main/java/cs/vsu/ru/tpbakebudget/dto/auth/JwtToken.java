@@ -1,4 +1,4 @@
-package cs.vsu.ru.tpbakebudget.dto;
+package cs.vsu.ru.tpbakebudget.dto.auth;
 
 import cs.vsu.ru.tpbakebudget.enums.Role;
 import lombok.Data;
