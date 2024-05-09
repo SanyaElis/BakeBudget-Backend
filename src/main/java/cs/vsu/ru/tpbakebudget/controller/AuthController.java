@@ -1,8 +1,8 @@
 package cs.vsu.ru.tpbakebudget.controller;
 
-import cs.vsu.ru.tpbakebudget.dto.JwtToken;
-import cs.vsu.ru.tpbakebudget.dto.SignInRequest;
-import cs.vsu.ru.tpbakebudget.dto.SignUpRequest;
+import cs.vsu.ru.tpbakebudget.dto.auth.JwtToken;
+import cs.vsu.ru.tpbakebudget.dto.auth.SignInRequest;
+import cs.vsu.ru.tpbakebudget.dto.auth.SignUpRequest;
 import cs.vsu.ru.tpbakebudget.enums.Role;
 import cs.vsu.ru.tpbakebudget.exception.UserAlreadyExistsException;
 import cs.vsu.ru.tpbakebudget.model.Users;
