@@ -1,7 +1,7 @@
 package cs.vsu.ru.tpbakebudget.controller;
 
-import cs.vsu.ru.tpbakebudget.dto.request.IngredientsRequestDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.IngredientsResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.request.ingredients.IngredientsRequestDTO;
+import cs.vsu.ru.tpbakebudget.dto.responce.ingredients.IngredientsResponseDTO;
 import cs.vsu.ru.tpbakebudget.mapper.IngredientsMapper;
 import cs.vsu.ru.tpbakebudget.model.Ingredients;
 import cs.vsu.ru.tpbakebudget.model.Users;

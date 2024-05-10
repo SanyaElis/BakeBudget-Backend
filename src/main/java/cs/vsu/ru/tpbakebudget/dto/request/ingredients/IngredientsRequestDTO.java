@@ -1,4 +1,4 @@
-package cs.vsu.ru.tpbakebudget.dto.request;
+package cs.vsu.ru.tpbakebudget.dto.request.ingredients;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
