@@ -73,6 +73,7 @@ public class UsersServiceImpl implements UsersService {
     public boolean updatePassword(Users user, String oldPassword, String newPassword) {
         if (passwordEncoder.matches(oldPassword, user.getPassword())) {
             user.setPassword(passwordEncoder.encode(newPassword));
+            repository.save(user);
             return true;
         } else {
             return false;
