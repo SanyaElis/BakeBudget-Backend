@@ -16,4 +16,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findAllByUserId(Long id);
 
     List<Orders> findByUserIdAndCreationDateBetweenAndFinishDateBetween(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt);
+
+    boolean existsByUserIdAndName(Long id, String name);
 }

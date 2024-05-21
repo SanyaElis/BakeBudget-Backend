@@ -23,7 +23,12 @@ public class IngredientsInProductServiceImpl implements IngredientsInProductServ
 
     @Override
     public IngredientsInProduct save(IngredientsInProduct ingredientsInProduct) {
-        return repository.save(ingredientsInProduct);
+        if(!existsByPk(ingredientsInProduct.getPk())){
+            return repository.save(ingredientsInProduct);
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
@@ -58,5 +63,10 @@ public class IngredientsInProductServiceImpl implements IngredientsInProductServ
     @Override
     public List<IngredientsInProduct> findByPk_ProductId(Long productId) {
         return repository.findByPk_ProductId(productId);
+    }
+
+    @Override
+    public boolean existsByPk(IngredientsInProductKey key) {
+        return repository.existsByPk(key);
     }
 }

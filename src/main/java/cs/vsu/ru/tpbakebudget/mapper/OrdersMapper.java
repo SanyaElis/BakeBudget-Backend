@@ -21,11 +21,13 @@ public class OrdersMapper {
         dto.setDescription(entity.getDescription());
         dto.setStatus(entity.getStatus());
         dto.setCostPrice(entity.getCostPrice());
+        dto.setFinalCost(entity.getFinalCost());
         dto.setExtraExpenses(entity.getExtraExpenses());
         dto.setFinalWeight(entity.getFinalWeight());
         dto.setMarginFactor(entity.getMarginFactor());
         dto.setCreationDate(entity.getCreationDate());
         dto.setFinishDate(entity.getFinishDate());
+        dto.setProductId(entity.getProduct().getId());
         return dto;
     }
 
@@ -40,10 +42,7 @@ public class OrdersMapper {
         entity.setExtraExpenses(dto.getExtraExpenses());
         entity.setFinalWeight(dto.getFinalWeight());
         entity.setMarginFactor(dto.getMarginFactor());
-        if(dto.getCreationDate() == null){
-            entity.setCreationDate(LocalDate.now());
-        }
-        entity.setFinishDate(dto.getFinishDate());
+        entity.setCreationDate(LocalDate.now());
         entity.setProduct(product);
         return entity;
     }

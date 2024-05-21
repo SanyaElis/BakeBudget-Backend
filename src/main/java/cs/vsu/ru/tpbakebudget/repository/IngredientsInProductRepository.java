@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface IngredientsInProductRepository extends JpaRepository<IngredientsInProduct, IngredientsInProductKey> {
     List<IngredientsInProduct> findByPk_ProductId(Long productId);
+
+    boolean existsByPk(IngredientsInProductKey key);
 }

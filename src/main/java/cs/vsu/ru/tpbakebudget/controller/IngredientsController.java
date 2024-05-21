@@ -50,18 +50,26 @@ public class IngredientsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Ingredient with this name already exists for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Ingredient with this name already exists"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<IngredientsResponseDTO> createIngredient(@Valid @RequestBody IngredientsRequestDTO ingredientRequest) {
+    public ResponseEntity<?> createIngredient(@Valid @RequestBody IngredientsRequestDTO ingredientRequest) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Ingredients ingredient = mapper.toEntity(ingredientRequest, users);
         Ingredients createdIngredient = ingredientsService.save(ingredient);
-
-        return new ResponseEntity<>(mapper.toDto(createdIngredient), HttpStatus.CREATED);
+        if(createdIngredient != null){
+            return new ResponseEntity<>(mapper.toDto(createdIngredient), HttpStatus.CREATED);
+        }
+        else{
+            return new ResponseEntity<>("Ingredient with this name already exists", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/get/{id}")
@@ -102,6 +110,10 @@ public class IngredientsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Ingredient not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Ingredient with this name already exists for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Ingredient with this name already exists"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -111,8 +123,12 @@ public class IngredientsController {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Ingredients updatedIngredient = ingredientsService.update(id, mapper.toEntity(updatedIngredientDTO, users));
-
-        return new ResponseEntity<>(mapper.toDto(updatedIngredient), HttpStatus.OK);
+        if(updatedIngredient != null){
+            return new ResponseEntity<>(mapper.toDto(updatedIngredient), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>("Ingredient with this name already exists", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/findAll")

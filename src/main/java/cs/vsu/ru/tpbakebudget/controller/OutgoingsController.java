@@ -41,7 +41,7 @@ public class OutgoingsController {
         this.mapper = mapper;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create/{productId}")
     @Operation(summary = "Create Outgoing", description = "Create a new Outgoing.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Outgoing created successfully"),
@@ -57,18 +57,26 @@ public class OutgoingsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Product not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Outgoing already exists for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Outgoing already exists for this product"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<OutgoingsResponseDTO> createOutgoing(@Valid @RequestBody OutgoingsRequestDTO outgoingsRequestDTO) {
-        Products product = productsService.findById(outgoingsRequestDTO.getProductId());
+    public ResponseEntity<?> createOutgoing(@PathVariable Long productId, @Valid @RequestBody OutgoingsRequestDTO outgoingsRequestDTO) {
+        Products product = productsService.findById(productId);
 
         Outgoings outgoing = mapper.toEntity(outgoingsRequestDTO, product);
         Outgoings createdOutgoing = outgoingsService.save(outgoing);
-
-        return new ResponseEntity<>(mapper.toDto(createdOutgoing), HttpStatus.CREATED);
+        if(createdOutgoing != null){
+            return new ResponseEntity<>(mapper.toDto(createdOutgoing), HttpStatus.CREATED);
+        }
+        else{
+            return new ResponseEntity<>("Outgoing already exists for this product", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/get/{id}")
@@ -109,6 +117,10 @@ public class OutgoingsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Outgoing not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Outgoing already exists for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Outgoing already exists for this product"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -116,14 +128,17 @@ public class OutgoingsController {
     })
     public ResponseEntity<?> updateOutgoing(@PathVariable Long id, @Valid @RequestBody OutgoingsRequestDTO updatedOutgoingDTO) {
         Outgoings oldOutgoing = outgoingsService.findById(id);
-        Products products = oldOutgoing.getProduct();
 
-        Outgoings updatedOutgoing = outgoingsService.update(id, mapper.toEntity(updatedOutgoingDTO, products));
-
-        return new ResponseEntity<>(mapper.toDto(updatedOutgoing), HttpStatus.OK);
+        Outgoings updatedOutgoing = outgoingsService.update(id, mapper.toEntity(updatedOutgoingDTO, oldOutgoing.getProduct()));
+        if(updatedOutgoing != null){
+            return new ResponseEntity<>(mapper.toDto(updatedOutgoing), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>("Outgoing already exists for this product", HttpStatus.CONFLICT);
+        }
     }
 
-    @GetMapping("/findAll/productId/{id}")
+    @GetMapping("/findAll/{productId}")
     @Operation(summary = "Find All Outgoings", description = "Get a list of all Outgoings.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of Outgoings retrieved successfully"),
@@ -140,8 +155,8 @@ public class OutgoingsController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<List<OutgoingsResponseDTO>> findAllOutgoings(@PathVariable Long id) {
-        List<Outgoings> allOutgoings = outgoingsService.findAllByProductId(id);
+    public ResponseEntity<List<OutgoingsResponseDTO>> findAllOutgoings(@PathVariable Long productId) {
+        List<Outgoings> allOutgoings = outgoingsService.findAllByProductId(productId);
         List<OutgoingsResponseDTO> outgoingsResponseDTOS = new ArrayList<>();
 
         if (allOutgoings.isEmpty()) {

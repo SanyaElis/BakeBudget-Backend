@@ -1,9 +1,11 @@
 package cs.vsu.ru.tpbakebudget.service;
 
 import cs.vsu.ru.tpbakebudget.model.Outgoings;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public interface OutgoingsService {
     Outgoings save(Outgoings outgoing);
 
@@ -18,4 +20,6 @@ public interface OutgoingsService {
     void delete(Long id);
 
     List<Outgoings> findAllByProductId(Long id);
+
+    boolean existsByProductIdAndName(Long id, String name);
 }

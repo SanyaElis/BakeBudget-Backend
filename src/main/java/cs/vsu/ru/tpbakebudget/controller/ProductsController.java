@@ -76,18 +76,25 @@ public class ProductsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Product with this name already exists for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Product with this name already exists"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<ProductsResponseDTO> createProduct(@Valid @RequestBody ProductsRequestDTO productsRequest) {
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductsRequestDTO productsRequest) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Products product = productsMapper.toEntity(productsRequest, users);
         Products createdProduct = productsService.save(product);
-
-        return new ResponseEntity<>(productsMapper.toDto(createdProduct), HttpStatus.CREATED);
+        if (createdProduct != null) {
+            return new ResponseEntity<>(productsMapper.toDto(createdProduct), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>("Product with this name already exists", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/get/{id}")
@@ -128,6 +135,10 @@ public class ProductsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Product not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Product with this name already exists for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Product with this name already exists"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -136,7 +147,11 @@ public class ProductsController {
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductsRequestDTO updatedProductDTO) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Products updatedProduct = productsService.update(id, productsMapper.toEntity(updatedProductDTO, users));
-        return new ResponseEntity<>(productsMapper.toDto(updatedProduct), HttpStatus.OK);
+        if (updatedProduct != null) {
+            return new ResponseEntity<>(productsMapper.toDto(updatedProduct), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Product with this name already exists", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/findAll")
@@ -317,6 +332,10 @@ public class ProductsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Entity not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Ingredient already added for this product",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Ingredient already added for this product"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -326,9 +345,13 @@ public class ProductsController {
         Products products = productsService.findById(ingredientsInProductRequestDTO.getProductId());
         Ingredients ingredients = ingredientsService.findById(ingredientsInProductRequestDTO.getIngredientId());
         IngredientsInProduct ingredientsInProduct = ingredientsInProductMapper.toEntity(ingredients, products, ingredientsInProductRequestDTO.getWeight());
-        ingredientsInProductService.save(ingredientsInProduct);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        IngredientsInProduct savedIngredient = ingredientsInProductService.save(ingredientsInProduct);
+        if(savedIngredient != null){
+            return new ResponseEntity<>("Ingredient added successfully", HttpStatus.CREATED);
+        }
+        else{
+            return new ResponseEntity<>("Ingredient already added for this product", HttpStatus.CONFLICT);
+        }
     }
 
     @PutMapping("/updateIngredient")
@@ -352,13 +375,13 @@ public class ProductsController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<?> updateProduct(@Valid @RequestBody IngredientsInProductRequestDTO ingredientsInProductRequestDTO) {
+    public ResponseEntity<?> updateIngredient(@Valid @RequestBody IngredientsInProductRequestDTO ingredientsInProductRequestDTO) {
         Products products = productsService.findById(ingredientsInProductRequestDTO.getProductId());
         Ingredients ingredients = ingredientsService.findById(ingredientsInProductRequestDTO.getIngredientId());
         IngredientsInProduct newIngredientsInProduct = ingredientsInProductMapper.toEntity(ingredients, products, ingredientsInProductRequestDTO.getWeight());
         ingredientsInProductService.update(newIngredientsInProduct);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Ingredient in product updated successfully", HttpStatus.OK);
     }
 
     @GetMapping("/findAllIngredients/{id}")
@@ -391,7 +414,7 @@ public class ProductsController {
         return new ResponseEntity<>(responseDTOS, HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteIngredient")
+    @DeleteMapping("/deleteIngredient/{ingredientId}/{productId}")
     @Operation(summary = "Delete Ingredient in product", description = "Delete an Ingredient in product by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ingredient in product deleted successfully"),
@@ -408,9 +431,9 @@ public class ProductsController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<?> deleteIngredientById(@Valid @RequestBody IngredientsInProductRequestDTO ingredientsInProductRequestDTO) {
-        Products product = productsService.findById(ingredientsInProductRequestDTO.getProductId());
-        Ingredients ingredient = ingredientsService.findById(ingredientsInProductRequestDTO.getIngredientId());
+    public ResponseEntity<?> deleteIngredientById(@PathVariable Long ingredientId, @PathVariable Long productId) {
+        Products product = productsService.findById(productId);
+        Ingredients ingredient = ingredientsService.findById(ingredientId);
 
         IngredientsInProductKey key = new IngredientsInProductKey(ingredient, product);
         ingredientsInProductService.delete(key);

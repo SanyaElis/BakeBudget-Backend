@@ -27,20 +27,16 @@ public class CostCounter {
         this.ingredientsService = ingredientsService;
     }
 
-    public double countCost(Products product, double finalWeight, double extraExpenses) {
+    public double countCost(Products product, double finalWeight) {
         List<Outgoings> outgoings = outgoingsService.findAllByProductId(product.getId());
         List<IngredientsInProduct> ingredientsInProduct = ingredientsInProductService.findByPk_ProductId(product.getId());
-        List<Ingredients> ingredients = ingredientsService.findByIngredientsInProductPkProductId(product.getId());
 
-        if(ingredientsInProduct.size() != ingredients.size()){
-            return -1;
-        }
         double result = 0;
-
         double ingredients_coefficient;
-        for (int i = 0; i < ingredientsInProduct.size(); i++) {
-            ingredients_coefficient = ingredientsInProduct.get(i).getWeight() / ingredients.get(i).getWeight();
-            result += ingredients.get(i).getCost() * ingredients_coefficient;
+        for (IngredientsInProduct inProduct : ingredientsInProduct) {
+            Ingredients ingredient = ingredientsService.findById(inProduct.getPk().getIngredient().getId());
+            ingredients_coefficient = inProduct.getWeight() / ingredient.getWeight();
+            result += ingredient.getCost() * ingredients_coefficient;
         }
 
         double outgoings_coefficient = finalWeight / product.getWeight();
@@ -48,8 +44,10 @@ public class CostCounter {
             result += outgoing.getCost() * outgoings_coefficient;
         }
 
-        result += extraExpenses;
-
         return result;
+    }
+
+    public double countFinalCost(double costPrice, double marginFactor, double extraExpenses){
+        return costPrice * marginFactor + extraExpenses;
     }
 }

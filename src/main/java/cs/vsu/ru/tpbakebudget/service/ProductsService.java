@@ -1,9 +1,11 @@
 package cs.vsu.ru.tpbakebudget.service;
 
 import cs.vsu.ru.tpbakebudget.model.Products;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public interface ProductsService {
     Products save(Products product);
 
@@ -18,4 +20,6 @@ public interface ProductsService {
     Products update(Long id, Products product);
 
     void delete(Long id);
+
+    boolean existsByUserIdAndName(Long id, String name);
 }

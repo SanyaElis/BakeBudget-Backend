@@ -1,16 +1,14 @@
 package cs.vsu.ru.tpbakebudget.mapper;
 
-import cs.vsu.ru.tpbakebudget.dto.request.calculation.CalculationRequestDTO;
 import cs.vsu.ru.tpbakebudget.dto.responce.calculation.CalculationResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CalculationMapper {
-    public CalculationResponseDTO toDto(CalculationRequestDTO calculationRequestDTO, double costPrice) {
+    public CalculationResponseDTO toDto(double costPrice, double finalCost) {
         CalculationResponseDTO dto = new CalculationResponseDTO();
-        dto.setFinalWeight(calculationRequestDTO.getFinalWeight());
-        dto.setExtraExpenses(calculationRequestDTO.getExtraExpenses());
         dto.setCostPrice(costPrice);
+        dto.setFinalCost(finalCost);
         return dto;
     }
 }

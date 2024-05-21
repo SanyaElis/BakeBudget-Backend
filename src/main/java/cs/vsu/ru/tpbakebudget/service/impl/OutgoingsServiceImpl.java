@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Component
@@ -24,13 +25,21 @@ public class OutgoingsServiceImpl implements OutgoingsService {
 
     @Override
     public Outgoings save(Outgoings outgoing) {
-        return repository.save(outgoing);
+        if(!existsByProductIdAndName(outgoing.getProduct().getId(), outgoing.getName())){
+            return repository.save(outgoing);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
     public Outgoings update(Long id, @NotNull Outgoings newOutgoing) {
-        repository.findById(id).orElseThrow(() -> new NotFoundException("Outgoing not found with id: " + id));
+        Outgoings outgoing = repository.findById(id).orElseThrow(() -> new NotFoundException("Outgoing not found with id: " + id));
         newOutgoing.setId(id);
+        if(!Objects.equals(newOutgoing.getName(), outgoing.getName()) && existsByProductIdAndName(newOutgoing.getProduct().getId(), newOutgoing.getName())){
+            return null;
+        }
         return repository.save(newOutgoing);
     }
 
@@ -57,5 +66,10 @@ public class OutgoingsServiceImpl implements OutgoingsService {
     @Override
     public List<Outgoings> findAllByProductId(Long id) {
         return repository.findAllByProductId(id);
+    }
+
+    @Override
+    public boolean existsByProductIdAndName(Long id, String name) {
+        return repository.existsByProductIdAndName(id, name);
     }
 }

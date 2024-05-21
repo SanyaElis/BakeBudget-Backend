@@ -78,12 +78,13 @@ public class OrdersController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<CalculationResponseDTO> createIngredient(@Valid @RequestBody CalculationRequestDTO calculationRequestDTO) {
+    public ResponseEntity<CalculationResponseDTO> calculate(@Valid @RequestBody CalculationRequestDTO calculationRequestDTO) {
         Products product = productsService.findById(calculationRequestDTO.getProductId());
 
-        double costPrice = costCounter.countCost(product, calculationRequestDTO.getFinalWeight(), calculationRequestDTO.getExtraExpenses());
+        double costPrice = costCounter.countCost(product, calculationRequestDTO.getFinalWeight());
+        double finalCost = costCounter.countFinalCost(costPrice, calculationRequestDTO.getMarginFactor(), calculationRequestDTO.getExtraExpenses());
 
-        return new ResponseEntity<>(calculationMapper.toDto(calculationRequestDTO, costPrice), HttpStatus.OK);
+        return new ResponseEntity<>(calculationMapper.toDto(costPrice, finalCost), HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -102,18 +103,31 @@ public class OrdersController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Product not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Order with this name already exists",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Order with this name already exists"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<OrdersResponseDTO> createOrder(@Valid @RequestBody OrdersRequestDTO ordersRequestDTO) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrdersRequestDTO ordersRequestDTO) {
+        Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         Products product = productsService.findById(ordersRequestDTO.getProductId());
-        double costPrice = costCounter.countCost(product, ordersRequestDTO.getFinalWeight(), ordersRequestDTO.getExtraExpenses());
+        double costPrice = costCounter.countCost(product, ordersRequestDTO.getFinalWeight());
+        double finalCost = costCounter.countFinalCost(costPrice, ordersRequestDTO.getMarginFactor(), ordersRequestDTO.getExtraExpenses());
         Orders order = ordersMapper.toEntity(ordersRequestDTO, product);
         order.setCostPrice(costPrice);
+        order.setFinalCost(finalCost);
+        order.setUser(users);
         Orders savedOrder = ordersService.save(order);
-        return new ResponseEntity<>(ordersMapper.toDto(savedOrder), HttpStatus.CREATED);
+        if (savedOrder != null) {
+            return new ResponseEntity<>(ordersMapper.toDto(savedOrder), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>("Order with this name already exists", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/get/{id}")
@@ -128,6 +142,10 @@ public class OrdersController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Order not found"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Order with this name already exists",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Order with this name already exists"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -160,14 +178,22 @@ public class OrdersController {
                             examples = @ExampleObject(value = "Internal server error")))
     })
     public ResponseEntity<?> updateOrder(@PathVariable Long id, @Valid @RequestBody OrdersRequestDTO updatedOrderDTO) {
+        Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         Products product = productsService.findById(updatedOrderDTO.getProductId());
-        double costPrice = costCounter.countCost(product, updatedOrderDTO.getFinalWeight(), updatedOrderDTO.getExtraExpenses());
+        double costPrice = costCounter.countCost(product, updatedOrderDTO.getFinalWeight());
         Orders newOrder = ordersMapper.toEntity(updatedOrderDTO, product);
         newOrder.setCostPrice(costPrice);
-
+        double finalCost = costCounter.countFinalCost(newOrder.getCostPrice(), newOrder.getMarginFactor(), newOrder.getExtraExpenses());
+        newOrder.setFinalCost(finalCost);
+        newOrder.setUser(users);
         Orders updatedOrder = ordersService.update(id, newOrder);
 
-        return new ResponseEntity<>(ordersMapper.toDto(updatedOrder), HttpStatus.OK);
+        if (updatedOrder != null) {
+            return new ResponseEntity<>(ordersMapper.toDto(updatedOrder), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Order with this name already exists", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/findAll")
@@ -246,7 +272,7 @@ public class OrdersController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<?> setOrderStatus(@PathVariable Long id, @Parameter(example = "IN_PROCESS") @RequestBody String status) {
+    public ResponseEntity<?> setOrderStatus(@PathVariable Long id, @Parameter(example = "IN_PROCESS") @RequestParam String status) {
         if (EnumUtils.isValidEnum(OrderStatus.class, status)) {
             OrderStatus orderStatus = OrderStatus.valueOf(status);
             ordersService.updateOrderStatus(id, orderStatus);
