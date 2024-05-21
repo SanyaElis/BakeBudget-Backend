@@ -12,4 +12,6 @@ public interface IngredientsRepository extends JpaRepository<Ingredients, Long> 
     List<Ingredients> findAllByUserId(Long id);
 
     List<Ingredients> findByIngredientsInProductPkProductId(Long productId);
+
+    boolean existsByUserIdAndName(Long id, String name);
 }

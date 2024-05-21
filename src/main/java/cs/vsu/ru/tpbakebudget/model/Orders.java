@@ -25,6 +25,8 @@ public class Orders {
 
     private double costPrice;
 
+    private double finalCost;
+
     private double extraExpenses;
 
     @Column(nullable = false)
@@ -49,11 +51,12 @@ public class Orders {
     @JsonIgnore
     private Products product;
 
-    public Orders(String name, String description, OrderStatus status, double costPrice, double extraExpenses, double finalWeight, double marginFactor, LocalDate creationDate, LocalDate finishDate, Users user, Products product) {
+    public Orders(String name, String description, OrderStatus status, double costPrice, double finalCost, double extraExpenses, double finalWeight, double marginFactor, LocalDate creationDate, LocalDate finishDate, Users user, Products product) {
         this.name = name;
         this.description = description;
         this.status = status;
         this.costPrice = costPrice;
+        this.finalCost = finalCost;
         this.extraExpenses = extraExpenses;
         this.finalWeight = finalWeight;
         this.marginFactor = marginFactor;

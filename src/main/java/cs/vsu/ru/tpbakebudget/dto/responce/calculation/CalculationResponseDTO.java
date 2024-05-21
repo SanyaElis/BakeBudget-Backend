@@ -4,9 +4,8 @@ import lombok.Data;
 
 @Data
 public class CalculationResponseDTO {
-    private double extraExpenses;
-
-    private double finalWeight;
 
     private double costPrice;
+
+    private double finalCost;
 }

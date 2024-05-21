@@ -2,10 +2,12 @@ package cs.vsu.ru.tpbakebudget.service;
 
 import cs.vsu.ru.tpbakebudget.enums.OrderStatus;
 import cs.vsu.ru.tpbakebudget.model.Orders;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Component
 public interface OrdersService {
     Orders save(Orders order);
 
@@ -24,4 +26,6 @@ public interface OrdersService {
     List<Orders> findByUserIdAndCreationDateBetweenAndFinishDateBetween(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt);
 
     void updateOrderStatus(Long id, OrderStatus newStatus);
+
+    boolean existsByUserIdAndName(Long id, String name);
 }

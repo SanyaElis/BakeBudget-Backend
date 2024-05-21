@@ -62,7 +62,7 @@ public class ReportsController {
         return new ResponseEntity<>(report, HttpStatus.OK);
     }
 
-    @PostMapping("/calculateByGroupSelf")
+    @PostMapping("/calculateByIncomeSelf")
     @Operation(summary = "Calculate report by income for user self", description = "Create a new report calculation by order.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calculated successfully"),

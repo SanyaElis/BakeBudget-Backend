@@ -17,6 +17,8 @@ public class OrdersResponseDTO {
 
     private double costPrice;
 
+    private double finalCost;
+
     private double extraExpenses;
 
     private double finalWeight;
@@ -26,4 +28,7 @@ public class OrdersResponseDTO {
     private LocalDate creationDate;
 
     private LocalDate finishDate;
+
+    private Long productId;
 }
+

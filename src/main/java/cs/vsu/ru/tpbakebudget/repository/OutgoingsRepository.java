@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface OutgoingsRepository extends JpaRepository<Outgoings, Long> {
     List<Outgoings> findAllByProductId(Long productId);
+
+    boolean existsByProductIdAndName(Long id, String name);
 }

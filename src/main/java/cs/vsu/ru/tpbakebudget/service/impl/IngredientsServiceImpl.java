@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Component
@@ -29,13 +30,21 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     public Ingredients save(Ingredients ingredients) {
-        return repository.save(ingredients);
+        if(!existsByUserIdAndName(ingredients.getUser().getId(), ingredients.getName())){
+            return repository.save(ingredients);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
     public Ingredients update(Long id, @NotNull Ingredients newIngredient) {
-        repository.findById(id).orElseThrow(() -> new NotFoundException("Ingredient not found with id: " + id));
+        Ingredients ingredient = repository.findById(id).orElseThrow(() -> new NotFoundException("Ingredient not found with id: " + id));
         newIngredient.setId(id);
+        if(!Objects.equals(newIngredient.getName(), ingredient.getName()) && existsByUserIdAndName(newIngredient.getUser().getId(), newIngredient.getName())){
+            return null;
+        }
         return repository.save(newIngredient);
     }
 
@@ -58,5 +67,10 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     public List<Ingredients> findByIngredientsInProductPkProductId(Long productId) {
         return repository.findByIngredientsInProductPkProductId(productId);
+    }
+
+    @Override
+    public boolean existsByUserIdAndName(Long id, String name) {
+        return repository.existsByUserIdAndName(id, name);
     }
 }

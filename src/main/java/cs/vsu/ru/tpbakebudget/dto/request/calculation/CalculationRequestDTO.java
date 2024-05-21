@@ -13,7 +13,12 @@ public class CalculationRequestDTO {
     @DecimalMax(value = "10000000", message = "Extra expenses must be less than or equal to 10000000")
     private double extraExpenses;
 
-    @Schema(description = "Final weight for the calculation", example = "2.5")
+    @Schema(description = "Margin factor for the order", example = "1.2")
+    @DecimalMin(value = "0", message = "Margin factor must be non-negative")
+    @DecimalMax(value = "10000", message = "Margin factor must be less than or equal to 10000")
+    private double marginFactor;
+
+    @Schema(description = "Final weight for the calculation", example = "500")
     @NotNull(message = "Final weight cannot be null")
     @DecimalMin(value = "0", message = "Final weight must be non-negative")
     @DecimalMax(value = "10000000", message = "Final weight must be less than or equal to 10000000")

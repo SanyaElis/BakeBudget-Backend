@@ -50,10 +50,9 @@ public class UsersController {
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordChangeRequestDTO updatePasswordRequest) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (usersService.updatePassword(users, updatePasswordRequest.getOldPassword(), updatePasswordRequest.getNewPassword())){
+        if (usersService.updatePassword(users, updatePasswordRequest.getOldPassword(), updatePasswordRequest.getNewPassword())) {
             return ResponseEntity.ok().body("Password updated successfully!");
-        }
-        else{
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect old password");
         }
     }
@@ -113,6 +112,10 @@ public class UsersController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Creator already in self group",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Creator already in self group"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -120,8 +123,11 @@ public class UsersController {
     })
     public ResponseEntity<?> setCode(String groupCode) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(usersService.findByRoleAndGroupCode(Role.ROLE_ADVANCED_USER, groupCode) == null){
+        if (usersService.findByRoleAndGroupCode(Role.ROLE_ADVANCED_USER, groupCode) == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Group code not found");
+        }
+        if(users.getRole() == Role.ROLE_ADVANCED_USER){
+            return new ResponseEntity<>("Creator already in self group", HttpStatus.CONFLICT);
         }
         users.setGroupCode(groupCode);
         usersService.update(users);
@@ -148,7 +154,7 @@ public class UsersController {
     public ResponseEntity<?> leaveGroup() {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if(users.getGroupCode() == null){
+        if (users.getGroupCode() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not in the group");
         }
         users.setGroupCode(null);
@@ -176,7 +182,7 @@ public class UsersController {
     })
     public ResponseEntity<?> changeRole() {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(users.getRole() == Role.ROLE_ADVANCED_USER){
+        if (users.getRole() == Role.ROLE_ADVANCED_USER) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Already advanced user");
         }
         users.setRole(Role.ROLE_ADVANCED_USER);

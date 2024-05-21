@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrdersServiceImpl implements OrdersService {
@@ -25,7 +26,12 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Orders save(Orders order) {
-        return repository.save(order);
+        if(!existsByUserIdAndName(order.getUser().getId(), order.getName())){
+            return repository.save(order);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -45,8 +51,12 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Orders update(Long id, Orders newOrder) {
-        repository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
+        Orders order = repository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
         newOrder.setId(id);
+        newOrder.setStatus(order.getStatus());
+        if(!Objects.equals(newOrder.getName(), order.getName()) && existsByUserIdAndName(newOrder.getUser().getId(), newOrder.getName())){
+            return null;
+        }
         return repository.save(newOrder);
     }
 
@@ -68,7 +78,18 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public void updateOrderStatus(Long id, OrderStatus newStatus) {
         Orders order = repository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
+        if(newStatus == OrderStatus.DONE || newStatus == OrderStatus.CANCELLED){
+            order.setFinishDate(LocalDate.now());
+        }
+        else{
+            order.setFinishDate(null);
+        }
         order.setStatus(newStatus);
         repository.save(order);
+    }
+
+    @Override
+    public boolean existsByUserIdAndName(Long id, String name) {
+        return repository.existsByUserIdAndName(id, name);
     }
 }

@@ -1,11 +1,8 @@
 package cs.vsu.ru.tpbakebudget.dto.request.orders;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-
-import java.time.LocalDate;
 
 @Data
 public class OrdersRequestDTO {
@@ -25,7 +22,7 @@ public class OrdersRequestDTO {
     @DecimalMax(value = "10000000", message = "Extra expenses must be less than or equal to 10000000")
     private double extraExpenses;
 
-    @Schema(description = "Final weight of the order", example = "2.5")
+    @Schema(description = "Final weight of the order", example = "500")
     @NotNull(message = "Final weight cannot be null")
     @DecimalMin(value = "0", message = "Final weight must be non-negative")
     @DecimalMax(value = "10000000", message = "Final weight must be less than or equal to 10000000")
@@ -35,14 +32,6 @@ public class OrdersRequestDTO {
     @DecimalMin(value = "0", message = "Margin factor must be non-negative")
     @DecimalMax(value = "10000", message = "Margin factor must be less than or equal to 10000")
     private double marginFactor;
-
-    @Schema(description = "Date of order creation", example = "2024-04-29", pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate creationDate;
-
-    @Schema(description = "Date of order finish", example = "2024-05-05", pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate finishDate;
 
     @Schema(description = "ID of the product with the order", example = "1")
     @NotNull(message = "Product Id cannot be null")

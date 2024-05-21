@@ -48,7 +48,6 @@ public class UsersServiceImpl implements UsersService {
         return repository.findById(id).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
-
     @Override
     public List<Users> saveAll(List<Users> users) {
         return repository.saveAll(users);
@@ -67,6 +66,12 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Users setNewPassword(Users user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return repository.save(user);
     }
 
     @Override

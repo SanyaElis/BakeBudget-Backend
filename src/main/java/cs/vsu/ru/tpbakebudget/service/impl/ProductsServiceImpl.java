@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Component
@@ -26,15 +27,22 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public Products update(Long id, @NotNull Products newProduct) {
-        repository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
-        newProduct.setId(id);
-        return repository.save(newProduct);
+    public Products save(Products product) {
+        if (!existsByUserIdAndName(product.getUser().getId(), product.getName())) {
+            return repository.save(product);
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public Products save(Products product) {
-        return repository.save(product);
+    public Products update(Long id, @NotNull Products newProduct) {
+        Products product = repository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        newProduct.setId(id);
+        if(!Objects.equals(newProduct.getName(), product.getName()) && existsByUserIdAndName(newProduct.getUser().getId(), newProduct.getName())){
+            return null;
+        }
+        return repository.save(newProduct);
     }
 
     @Override
@@ -55,6 +63,11 @@ public class ProductsServiceImpl implements ProductsService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByUserIdAndName(Long id, String name) {
+        return repository.existsByUserIdAndName(id, name);
     }
 
     public void setMinioName(Products product, String minioName) {

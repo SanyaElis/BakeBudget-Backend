@@ -2,9 +2,11 @@ package cs.vsu.ru.tpbakebudget.service;
 
 import cs.vsu.ru.tpbakebudget.enums.Role;
 import cs.vsu.ru.tpbakebudget.model.Users;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public interface UsersService {
     Users save(Users user);
 
@@ -27,4 +29,6 @@ public interface UsersService {
     List<Users> findAllByGroupCode(String groupCode);
 
     void delete(Long id);
+
+    Users setNewPassword(Users user, String newPassword);
 }
