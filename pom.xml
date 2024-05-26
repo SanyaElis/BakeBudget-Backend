@@ -148,12 +148,11 @@
             <version>2.16.1</version>
         </dependency>
 
-        <!--db migration. flyway-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.flywaydb</groupId>-->
-        <!--            <artifactId>flyway-core</artifactId>-->
-        <!--            <version>10.11.1</version>-->
-        <!--        </dependency>-->
+        <!--for password reset procedure-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
 
     </dependencies>
 
