@@ -81,7 +81,7 @@ public class OrdersController {
     public ResponseEntity<CalculationResponseDTO> calculate(@Valid @RequestBody CalculationRequestDTO calculationRequestDTO) {
         Products product = productsService.findById(calculationRequestDTO.getProductId());
 
-        double costPrice = costCounter.countCost(product, calculationRequestDTO.getFinalWeight());
+        double costPrice = costCounter.countCost(product, calculationRequestDTO.getFinalWeight(), calculationRequestDTO.getExtraExpenses());
         double finalCost = costCounter.countFinalCost(costPrice, calculationRequestDTO.getMarginFactor(), calculationRequestDTO.getExtraExpenses());
 
         return new ResponseEntity<>(calculationMapper.toDto(costPrice, finalCost), HttpStatus.OK);
@@ -116,7 +116,7 @@ public class OrdersController {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Products product = productsService.findById(ordersRequestDTO.getProductId());
-        double costPrice = costCounter.countCost(product, ordersRequestDTO.getFinalWeight());
+        double costPrice = costCounter.countCost(product, ordersRequestDTO.getFinalWeight(), ordersRequestDTO.getExtraExpenses());
         double finalCost = costCounter.countFinalCost(costPrice, ordersRequestDTO.getMarginFactor(), ordersRequestDTO.getExtraExpenses());
         Orders order = ordersMapper.toEntity(ordersRequestDTO, product);
         order.setCostPrice(costPrice);
@@ -181,7 +181,7 @@ public class OrdersController {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Products product = productsService.findById(updatedOrderDTO.getProductId());
-        double costPrice = costCounter.countCost(product, updatedOrderDTO.getFinalWeight());
+        double costPrice = costCounter.countCost(product, updatedOrderDTO.getFinalWeight(), updatedOrderDTO.getExtraExpenses());
         Orders newOrder = ordersMapper.toEntity(updatedOrderDTO, product);
         newOrder.setCostPrice(costPrice);
         double finalCost = costCounter.countFinalCost(newOrder.getCostPrice(), newOrder.getMarginFactor(), newOrder.getExtraExpenses());
