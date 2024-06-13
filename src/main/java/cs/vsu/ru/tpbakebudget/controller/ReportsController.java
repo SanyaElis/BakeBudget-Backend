@@ -40,6 +40,10 @@ public class ReportsController {
     @Operation(summary = "Calculate report by order for user self", description = "Create a new report calculation by order.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calculated successfully"),
+            @ApiResponse(responseCode = "204", description = "No content",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "No content: No data found for the given criteria"))),
             @ApiResponse(responseCode = "400", description = "Invalid input",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -53,11 +57,15 @@ public class ReportsController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<Map<String, Integer>> calculationByOrder(@Valid @RequestBody ReportRequestDTO reportRequestDTO) {
+    public ResponseEntity<?> calculationByOrder(@Valid @RequestBody ReportRequestDTO reportRequestDTO) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Map<String, Integer> report = calculator.calculateByOrders(users.getId(),
                 reportRequestDTO.getStartCreatedAt(), reportRequestDTO.getEndCreatedAt(),
                 reportRequestDTO.getStartFinishedAt(), reportRequestDTO.getEndFinishedAt());
+
+        if (report.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
 
         return new ResponseEntity<>(report, HttpStatus.OK);
     }

@@ -27,7 +27,9 @@ public class ReportCalculator {
     }
 
     public Map<String, Integer> calculateByOrders(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt){
-        List<Orders> orders = ordersService.findByUserIdAndCreationDateBetweenAndFinishDateBetween(userId, startCreatedAt, endCreatedAt, startFinishedAt, endFinishedAt);
+        //List<Orders> orders = ordersService.findByUserIdAndCreationDateBetweenAndFinishDateBetween(userId, startCreatedAt, endCreatedAt, startFinishedAt, endFinishedAt);
+        List<Orders> createdOrders = ordersService.findByUserIdAndCreationDateBetween(userId, startCreatedAt, endCreatedAt);
+        List<Orders> finishedOrders = ordersService.findByUserIdAndFinishDateBetween(userId, startFinishedAt, endFinishedAt);
 
         Map<String, Integer> statistics = new HashMap<>();
         int doneCount = 0;
@@ -35,19 +37,24 @@ public class ReportCalculator {
         int cancelledCount = 0;
         int inProgressCount = 0;
 
-        for (Orders order : orders) {
+        for (Orders order : createdOrders) {
             switch (order.getStatus()) {
-                case DONE:
-                    doneCount++;
+                case IN_PROCESS:
+                    inProgressCount++;
                     break;
                 case NOT_STARTED:
                     notStarted++;
                     break;
+            }
+        }
+
+        for (Orders order : finishedOrders) {
+            switch (order.getStatus()) {
+                case DONE:
+                    doneCount++;
+                    break;
                 case CANCELLED:
                     cancelledCount++;
-                    break;
-                case IN_PROCESS:
-                    inProgressCount++;
                     break;
             }
         }
@@ -105,8 +112,8 @@ public class ReportCalculator {
             if(order.getStatus() == OrderStatus.CANCELLED){
                 continue;
             }
-            selfCost += order.getCostPrice();
-            income += order.getCostPrice() * order.getMarginFactor();
+            selfCost += order.getCostPrice() + order.getExtraExpenses();
+            income += order.getFinalCost();
         }
 
         return new IncomeResponseDTO(selfCost, income);

@@ -26,10 +26,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Orders save(Orders order) {
-        if(!existsByUserIdAndName(order.getUser().getId(), order.getName())){
+        if (!existsByUserIdAndName(order.getUser().getId(), order.getName())) {
             return repository.save(order);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -52,11 +51,11 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public Orders update(Long id, Orders newOrder) {
         Orders order = repository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
-        newOrder.setId(id);
-        newOrder.setStatus(order.getStatus());
-        if(!Objects.equals(newOrder.getName(), order.getName()) && existsByUserIdAndName(newOrder.getUser().getId(), newOrder.getName())){
+        if (!Objects.equals(newOrder.getName(), order.getName()) && existsByUserIdAndName(newOrder.getUser().getId(), newOrder.getName())) {
             return null;
         }
+        newOrder.setId(id);
+        newOrder.setStatus(order.getStatus());
         return repository.save(newOrder);
     }
 
@@ -78,10 +77,9 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public void updateOrderStatus(Long id, OrderStatus newStatus) {
         Orders order = repository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
-        if(newStatus == OrderStatus.DONE || newStatus == OrderStatus.CANCELLED){
+        if (newStatus == OrderStatus.DONE || newStatus == OrderStatus.CANCELLED) {
             order.setFinishDate(LocalDate.now());
-        }
-        else{
+        } else {
             order.setFinishDate(null);
         }
         order.setStatus(newStatus);
@@ -91,5 +89,15 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public boolean existsByUserIdAndName(Long id, String name) {
         return repository.existsByUserIdAndName(id, name);
+    }
+
+    @Override
+    public List<Orders> findByUserIdAndCreationDateBetween(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt) {
+        return repository.findByUserIdAndCreationDateBetween(userId, startCreatedAt, endCreatedAt);
+    }
+
+    @Override
+    public List<Orders> findByUserIdAndFinishDateBetween(Long userId, LocalDate startFinishedAt, LocalDate endFinishedAt) {
+        return repository.findByUserIdAndFinishDateBetween(userId, startFinishedAt, endFinishedAt);
     }
 }
