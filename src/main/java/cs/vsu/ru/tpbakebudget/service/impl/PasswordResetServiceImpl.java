@@ -40,7 +40,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     @Override
     public boolean isResetRequestValid(Long userId) {
         PasswordReset resetRequest = resetRequestRepository.findByUserId(userId);
-        return resetRequest != null && !resetRequest.isUsed() && resetRequest.getCreationTime().isAfter(LocalDateTime.now().minusHours(24));
+        return resetRequest != null && !resetRequest.isUsed() && resetRequest.getCreationTime().isAfter(LocalDateTime.now().minusMinutes(30));
     }
 
     @Override

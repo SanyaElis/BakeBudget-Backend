@@ -1,6 +1,6 @@
 package cs.vsu.ru.tpbakebudget.controller;
 
-import cs.vsu.ru.tpbakebudget.component.EmailService;
+import cs.vsu.ru.tpbakebudget.component.EmailComponent;
 import cs.vsu.ru.tpbakebudget.dto.auth.ResetPasswordRequestDTO;
 import cs.vsu.ru.tpbakebudget.model.PasswordReset;
 import cs.vsu.ru.tpbakebudget.model.Users;
@@ -29,13 +29,13 @@ public class PasswordResetController {
 
     private final UsersServiceImpl usersService;
 
-    private final EmailService emailService;
+    private final EmailComponent emailComponent;
 
     @Autowired
-    public PasswordResetController(PasswordResetServiceImpl resetService, UsersServiceImpl usersService, EmailService emailService) {
+    public PasswordResetController(PasswordResetServiceImpl resetService, UsersServiceImpl usersService, EmailComponent emailComponent) {
         this.resetService = resetService;
         this.usersService = usersService;
-        this.emailService = emailService;
+        this.emailComponent = emailComponent;
     }
 
     @PostMapping("/forgotPassword")
@@ -60,12 +60,14 @@ public class PasswordResetController {
         if (user == null) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
-        if (resetService.findByUserId(user.getId()) != null) {
+        if (resetService.isResetRequestValid(user.getId())) {
             return new ResponseEntity<>("Reset Token already created for this user", HttpStatus.CONFLICT);
+        } else {
+            resetService.delete(user.getId());
+            PasswordReset resetToken = resetService.createPasswordResetRequest(user.getId());
+            emailComponent.sendPasswordResetEmail(email, resetToken.getToken());
+            return ResponseEntity.ok("Password reset link has been sent to your email.");
         }
-        PasswordReset resetToken = resetService.createPasswordResetRequest(user.getId());
-        emailService.sendPasswordResetEmail(email, resetToken.getToken());
-        return ResponseEntity.ok("Password reset link has been sent to your email.");
     }
 
     @GetMapping("/approveLink")
