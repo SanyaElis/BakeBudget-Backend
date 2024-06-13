@@ -28,4 +28,8 @@ public interface OrdersService {
     void updateOrderStatus(Long id, OrderStatus newStatus);
 
     boolean existsByUserIdAndName(Long id, String name);
+
+    List<Orders> findByUserIdAndCreationDateBetween(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt);
+
+    List<Orders> findByUserIdAndFinishDateBetween(Long userId, LocalDate startFinishedAt, LocalDate endFinishedAt);
 }
