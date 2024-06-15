@@ -2,6 +2,7 @@ package cs.vsu.ru.tpbakebudget.controller;
 
 import cs.vsu.ru.tpbakebudget.dto.request.products.IngredientsInProductRequestDTO;
 import cs.vsu.ru.tpbakebudget.dto.request.products.ProductsRequestDTO;
+import cs.vsu.ru.tpbakebudget.dto.responce.products.GetPictureDTO;
 import cs.vsu.ru.tpbakebudget.dto.responce.products.IngredientsInProductResponseDTO;
 import cs.vsu.ru.tpbakebudget.dto.responce.products.ProductsResponseDTO;
 import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
@@ -209,8 +210,7 @@ public class ProductsController {
         productsService.delete(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
-
-    @PutMapping(value = "/uploadPicture/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/uploadPicture/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload Product Picture", description = "Upload a picture for a product by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product picture added successfully"),
@@ -236,7 +236,7 @@ public class ProductsController {
         return ResponseEntity.ok("Product picture added successfully");
     }
 
-    @PostMapping(value = "/reloadPicture/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/reloadPicture/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Reload Product Picture", description = "Reload a picture for a product by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product picture reloaded successfully"),
@@ -263,7 +263,7 @@ public class ProductsController {
         return ResponseEntity.ok("Product picture reloaded successfully");
     }
 
-    @GetMapping(value = "/getPicture/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    @GetMapping(value = "/getPicture/{id}")
     @Operation(summary = "Get Product Picture", description = "Get the picture of a product by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product picture retrieved successfully"),
@@ -280,17 +280,57 @@ public class ProductsController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<byte[]> getPicture(@PathVariable Long id) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public ResponseEntity<?> getPicture(@PathVariable Long id) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         Products product = productsService.findById(id);
         if (product.getMinioPictureName() == null) {
             throw new NotFoundException("Product picture not found");
         }
+        String url = template.getPresignedUrl(product.getMinioPictureName());
+        GetPictureDTO getPictureDTO = new GetPictureDTO();
+        getPictureDTO.setLink(url);
+
+        return new ResponseEntity<>(getPictureDTO, HttpStatus.OK);
+    }
+
+/*    @GetMapping(value = "/getPicture/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    @Operation(summary = "Get Product Picture", description = "Get the picture of a product by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product picture retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "404", description = "Product not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Product not found"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Internal server error")))
+    })
+    public ResponseEntity<?> getPicture(@PathVariable Long id) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Products product = productsService.findById(id);
+        if (product.getMinioPictureName() == null) {
+            throw new NotFoundException("Product picture not found");
+        }
+        String url = template.getPresignedUrl(product.getMinioPictureName());
 
         InputStream inputStream = template.downloadFile(product.getMinioPictureName());
         byte[] imageBytes = IOUtils.toByteArray(inputStream);
         inputStream.close();
-        return new ResponseEntity<>(imageBytes, HttpStatus.OK);
-    }
+
+        ByteArrayResource resource = new ByteArrayResource(imageBytes);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setContentDispositionFormData("file", url);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(imageBytes.length)
+                .body(resource);
+    }*/
 
     @DeleteMapping(value = "/deletePicture/{id}")
     @Operation(summary = "Delete Product Picture", description = "Delete the picture of a product by its ID.")
@@ -346,10 +386,9 @@ public class ProductsController {
         Ingredients ingredients = ingredientsService.findById(ingredientsInProductRequestDTO.getIngredientId());
         IngredientsInProduct ingredientsInProduct = ingredientsInProductMapper.toEntity(ingredients, products, ingredientsInProductRequestDTO.getWeight());
         IngredientsInProduct savedIngredient = ingredientsInProductService.save(ingredientsInProduct);
-        if(savedIngredient != null){
+        if (savedIngredient != null) {
             return new ResponseEntity<>("Ingredient added successfully", HttpStatus.CREATED);
-        }
-        else{
+        } else {
             return new ResponseEntity<>("Ingredient already added for this product", HttpStatus.CONFLICT);
         }
     }

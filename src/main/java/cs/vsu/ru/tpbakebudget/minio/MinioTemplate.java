@@ -2,6 +2,7 @@ package cs.vsu.ru.tpbakebudget.minio;
 
 import io.minio.*;
 import io.minio.errors.*;
+import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,8 @@ import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class MinioTemplate {
@@ -56,6 +59,35 @@ public class MinioTemplate {
         minioClient.removeObject(RemoveObjectArgs.builder()
                 .bucket(bucketName)
                 .object(minioObjectName)
+                .build());
+    }
+
+//    public String getPresignedUrl(String objectName) throws IOException, InvalidKeyException, NoSuchAlgorithmException, ServerException, InsufficientDataException, ErrorResponseException, InternalException, InvalidResponseException, XmlParserException {
+//        return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+//                .bucket(bucketName)
+//                .object(objectName)
+//                .method(Method.GET)
+//                .build());
+//    }
+
+    public String getPresignedUrl(String objectName) throws IOException, InvalidKeyException, NoSuchAlgorithmException, ServerException, InsufficientDataException, ErrorResponseException, InternalException, InvalidResponseException, XmlParserException {
+        String contentType;
+        if (objectName.endsWith(".jpg") || objectName.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (objectName.endsWith(".png")) {
+            contentType = "image/png";
+        } else {
+            throw new IllegalArgumentException("Unsupported file type. Supported types are: jpg, jpeg, png");
+        }
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("response-content-type", contentType);
+
+        return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                .bucket(bucketName)
+                .object(objectName)
+                .method(Method.GET)
+                .extraQueryParams(queryParams)
                 .build());
     }
 
