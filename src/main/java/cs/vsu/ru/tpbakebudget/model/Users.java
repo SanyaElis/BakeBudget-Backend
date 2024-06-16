@@ -47,6 +47,10 @@ public class Users implements UserDetails {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<PasswordReset> passwordResets;
+
     public Users(Long id, String username, String email, String password) {
         this.id = id;
         this.username = username;

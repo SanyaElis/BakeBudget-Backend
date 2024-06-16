@@ -19,6 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/")
 public class UsersController {
@@ -66,6 +68,10 @@ public class UsersController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "409", description = "Conflict - Already in group",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Conflict: Already in group"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -73,12 +79,14 @@ public class UsersController {
     })
     public ResponseEntity<?> createCode() {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(users.getGroupCode() != null){
+            return new ResponseEntity<>("Already in group", HttpStatus.CONFLICT);
+        }
         String groupCode = usersService.createGroupCode(users);
         return new ResponseEntity<>(groupCode, HttpStatus.OK);
     }
 
     @GetMapping("/getGroupCode")
-    @PreAuthorize("hasRole('ROLE_ADVANCED_USER')")
     @Operation(summary = "Get group code", description = "Get user's group code")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Code successfully found"),
@@ -86,36 +94,37 @@ public class UsersController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "404", description = "Not Found - Group code not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Group code not found"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<?> getIngredientById() {
+    public ResponseEntity<?> getGroupCode() {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String groupCode = users.getGroupCode();
         if (groupCode == null) {
-            throw new NotFoundException("Code not found");
+            return new ResponseEntity<>("Group code not found", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(groupCode, HttpStatus.OK);
     }
 
     @PutMapping("/setGroupCode")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Set group code", description = "Set user's group code.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Code set successfully"),
-            @ApiResponse(responseCode = "400", description = "Bad request - Group code not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class),
-                            examples = @ExampleObject(value = "Group code not found"))),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
-            @ApiResponse(responseCode = "409", description = "Conflict - Creator already in self group",
+            @ApiResponse(responseCode = "404", description = "Not Found - Group code not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
-                            examples = @ExampleObject(value = "Conflict: Creator already in self group"))),
+                            examples = @ExampleObject(value = "Group code not found"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -123,11 +132,9 @@ public class UsersController {
     })
     public ResponseEntity<?> setCode(String groupCode) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         if (usersService.findByRoleAndGroupCode(Role.ROLE_ADVANCED_USER, groupCode) == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Group code not found");
-        }
-        if(users.getRole() == Role.ROLE_ADVANCED_USER){
-            return new ResponseEntity<>("Creator already in self group", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Group code not found", HttpStatus.NOT_FOUND);
         }
         users.setGroupCode(groupCode);
         usersService.update(users);
@@ -135,17 +142,18 @@ public class UsersController {
     }
 
     @PutMapping("/leaveGroup")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Leave group", description = "Leave user's group.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User successfully leaved"),
-            @ApiResponse(responseCode = "400", description = "Bad request - not in the group",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class),
-                            examples = @ExampleObject(value = "Not in the group"))),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "404", description = "Not Found - Group code not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Group code not found"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -155,15 +163,47 @@ public class UsersController {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (users.getGroupCode() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not in the group");
+            return new ResponseEntity<>("Group code not found", HttpStatus.NOT_FOUND);
         }
         users.setGroupCode(null);
         usersService.update(users);
         return ResponseEntity.ok("Successfully leaved");
     }
 
+    @DeleteMapping("/deleteGroup")
+    @PreAuthorize("hasRole('ROLE_ADVANCED_USER')")
+    @Operation(summary = "Delete Group", description = "Delete a group")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Group deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "404", description = "Group not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Group not found"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Internal server error")))
+    })
+    public ResponseEntity<?> deleteGroup() {
+        Users user = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String groupCode = user.getGroupCode();
+        if (groupCode == null) {
+            return new ResponseEntity<>("Group code not found", HttpStatus.NOT_FOUND);
+        }
+        List<Users> usersInGroup = usersService.findAllByGroupCode(groupCode);
+        for (Users currentUser : usersInGroup) {
+            currentUser.setGroupCode(null);
+            usersService.update(currentUser);
+        }
+
+        return ResponseEntity.ok("Group deleted successfully");
+    }
+
     @PutMapping("/changeRole")
-    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Change role", description = "Change user's role.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Role successfully changed"),
@@ -182,10 +222,12 @@ public class UsersController {
     })
     public ResponseEntity<?> changeRole() {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         if (users.getRole() == Role.ROLE_ADVANCED_USER) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Already advanced user");
         }
         users.setRole(Role.ROLE_ADVANCED_USER);
+        users.setGroupCode(null);
         usersService.update(users);
         return ResponseEntity.ok("Role successfully updated");
     }

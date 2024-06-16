@@ -82,6 +82,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/createGroupCode").hasRole("ADVANCED_USER")
+                        .requestMatchers("/getGroupCode").hasRole("ADVANCED_USER")
+                        .requestMatchers("/calculateByOrderGroup").hasRole("ADVANCED_USER")
+                        .requestMatchers("/calculateByIncomeGroup").hasRole("ADVANCED_USER")
+                        .requestMatchers("/changeRole").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 

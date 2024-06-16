@@ -21,5 +21,4 @@ public class PasswordReset {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
-
 }
