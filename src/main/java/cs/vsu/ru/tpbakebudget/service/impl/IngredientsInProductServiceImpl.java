@@ -37,11 +37,6 @@ public class IngredientsInProductServiceImpl implements IngredientsInProductServ
     }
 
     @Override
-    public List<IngredientsInProduct> saveAll(List<IngredientsInProduct> ingredientsInProductList) {
-        return repository.saveAll(ingredientsInProductList);
-    }
-
-    @Override
     public List<IngredientsInProduct> findAll() {
         return repository.findAll();
     }

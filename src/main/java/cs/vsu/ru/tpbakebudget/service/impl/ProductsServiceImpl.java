@@ -38,11 +38,12 @@ public class ProductsServiceImpl implements ProductsService {
     @Override
     public Products update(Long id, @NotNull Products newProduct) {
         Products product = repository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
-        newProduct.setId(id);
         if(!Objects.equals(newProduct.getName(), product.getName()) && existsByUserIdAndName(newProduct.getUser().getId(), newProduct.getName())){
             return null;
         }
-        return repository.save(newProduct);
+        product.setName(newProduct.getName());
+        product.setWeight(newProduct.getWeight());
+        return repository.save(product);
     }
 
     @Override

@@ -17,5 +17,4 @@ public class ProductPicture {
         this.base64Image = base64Image;
         this.extension = extension;
     }
-
 }

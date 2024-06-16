@@ -12,8 +12,6 @@ public interface IngredientsInProductService {
 
     IngredientsInProduct findById(IngredientsInProductKey pk);
 
-    List<IngredientsInProduct> saveAll(List<IngredientsInProduct> ingredientsInProductList);
-
     List<IngredientsInProduct> findAll();
 
     IngredientsInProduct update(IngredientsInProduct ingredientsInProduct);

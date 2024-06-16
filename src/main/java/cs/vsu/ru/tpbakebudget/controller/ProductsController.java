@@ -210,6 +210,7 @@ public class ProductsController {
         productsService.delete(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
+
     @PostMapping(value = "/uploadPicture/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload Product Picture", description = "Upload a picture for a product by its ID.")
     @ApiResponses(value = {
