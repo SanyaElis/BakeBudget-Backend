@@ -117,6 +117,13 @@ public class ReportsController {
     public ResponseEntity<Map<String, Integer>> calculationByOrderGroup(@Valid @RequestBody ReportRequestDTO reportForGroupDTO) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(users.getGroupCode() == null){
+            Map<String, Integer> reportSelf = calculator.calculateByOrders(users.getId(),
+                    reportForGroupDTO.getStartCreatedAt(), reportForGroupDTO.getEndCreatedAt(),
+                    reportForGroupDTO.getStartFinishedAt(), reportForGroupDTO.getEndFinishedAt());
+            return new ResponseEntity<>(reportSelf, HttpStatus.OK);
+        }
+
         Map<String, Integer> report = calculator.calculateByOrdersForGroup(users.getGroupCode(),
                 reportForGroupDTO.getStartCreatedAt(), reportForGroupDTO.getEndCreatedAt(),
                 reportForGroupDTO.getStartFinishedAt(), reportForGroupDTO.getEndFinishedAt());
@@ -137,6 +144,10 @@ public class ReportsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "404", description = "Group not created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Group not created"))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = String.class),
@@ -144,6 +155,11 @@ public class ReportsController {
     })
     public ResponseEntity<IncomeResponseDTO> calculationByIncomeGroup(@Valid @RequestBody ReportRequestDTO reportForGroupDTO) {
         Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(users.getGroupCode() == null){
+            IncomeResponseDTO incomeResponseDTOSelf = calculator.calculateByIncome(users.getId(), reportForGroupDTO.getStartCreatedAt(), reportForGroupDTO.getEndCreatedAt(),
+                    reportForGroupDTO.getStartFinishedAt(), reportForGroupDTO.getEndFinishedAt());
+            return new ResponseEntity<>(incomeResponseDTOSelf, HttpStatus.OK);
+        }
 
         IncomeResponseDTO incomeResponse = calculator.calculateByIncomeForGroup(users.getGroupCode(),
                 reportForGroupDTO.getStartCreatedAt(), reportForGroupDTO.getEndCreatedAt(),

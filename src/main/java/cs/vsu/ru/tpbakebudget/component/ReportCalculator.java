@@ -104,7 +104,8 @@ public class ReportCalculator {
     }
 
     public IncomeResponseDTO calculateByIncome(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt){
-        List<Orders> orders = ordersService.findByUserIdAndCreationDateBetweenAndFinishDateBetween(userId, startCreatedAt, endCreatedAt, startFinishedAt, endFinishedAt);
+        //List<Orders> orders = ordersService.findByUserIdAndCreationDateBetweenAndFinishDateBetween(userId, startCreatedAt, endCreatedAt, startFinishedAt, endFinishedAt);
+        List<Orders> orders = ordersService.findByUserIdAndFinishDateBetween(userId, startFinishedAt, endFinishedAt);
 
         double selfCost = 0;
         double income = 0;
