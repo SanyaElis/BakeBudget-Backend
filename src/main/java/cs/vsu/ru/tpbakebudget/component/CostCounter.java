@@ -48,6 +48,6 @@ public class CostCounter {
     }
 
     public double countFinalCost(double costPrice, double marginFactor, double extraExpenses){
-        return costPrice * marginFactor + extraExpenses;
+        return (costPrice - extraExpenses) * marginFactor + extraExpenses;
     }
 }
