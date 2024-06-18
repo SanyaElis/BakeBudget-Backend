@@ -1,7 +1,7 @@
 package cs.vsu.ru.tpbakebudget.controller;
 
 import cs.vsu.ru.tpbakebudget.dto.request.outgoings.OutgoingsRequestDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.outgoings.OutgoingsResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.outgoings.OutgoingsResponseDTO;
 import cs.vsu.ru.tpbakebudget.mapper.OutgoingsMapper;
 import cs.vsu.ru.tpbakebudget.model.Outgoings;
 import cs.vsu.ru.tpbakebudget.model.Products;

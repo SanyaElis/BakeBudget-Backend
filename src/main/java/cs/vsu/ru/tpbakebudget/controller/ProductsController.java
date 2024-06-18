@@ -2,9 +2,9 @@ package cs.vsu.ru.tpbakebudget.controller;
 
 import cs.vsu.ru.tpbakebudget.dto.request.products.IngredientsInProductRequestDTO;
 import cs.vsu.ru.tpbakebudget.dto.request.products.ProductsRequestDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.products.GetPictureDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.products.IngredientsInProductResponseDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.products.ProductsResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.products.GetPictureDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.products.IngredientsInProductResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.products.ProductsResponseDTO;
 import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.mapper.IngredientsInProductMapper;
 import cs.vsu.ru.tpbakebudget.mapper.ProductsMapper;
@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;

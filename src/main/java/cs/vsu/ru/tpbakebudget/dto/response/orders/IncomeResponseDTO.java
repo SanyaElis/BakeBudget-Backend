@@ -1,4 +1,4 @@
-package cs.vsu.ru.tpbakebudget.dto.responce.orders;
+package cs.vsu.ru.tpbakebudget.dto.response.orders;
 
 import lombok.Data;
 

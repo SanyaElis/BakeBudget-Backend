@@ -2,7 +2,7 @@ package cs.vsu.ru.tpbakebudget.controller;
 
 import cs.vsu.ru.tpbakebudget.component.ReportCalculator;
 import cs.vsu.ru.tpbakebudget.dto.request.orders.ReportRequestDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.orders.IncomeResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.orders.IncomeResponseDTO;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
