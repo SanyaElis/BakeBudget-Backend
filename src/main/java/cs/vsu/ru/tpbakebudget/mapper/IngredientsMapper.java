@@ -1,7 +1,7 @@
 package cs.vsu.ru.tpbakebudget.mapper;
 
 import cs.vsu.ru.tpbakebudget.dto.request.ingredients.IngredientsRequestDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.ingredients.IngredientsResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.ingredients.IngredientsResponseDTO;
 import cs.vsu.ru.tpbakebudget.model.Ingredients;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import org.springframework.stereotype.Component;

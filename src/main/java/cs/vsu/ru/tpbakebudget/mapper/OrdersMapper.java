@@ -1,7 +1,7 @@
 package cs.vsu.ru.tpbakebudget.mapper;
 
 import cs.vsu.ru.tpbakebudget.dto.request.orders.OrdersRequestDTO;
-import cs.vsu.ru.tpbakebudget.dto.responce.orders.OrdersResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.orders.OrdersResponseDTO;
 import cs.vsu.ru.tpbakebudget.enums.OrderStatus;
 import cs.vsu.ru.tpbakebudget.model.Orders;
 import cs.vsu.ru.tpbakebudget.model.Products;

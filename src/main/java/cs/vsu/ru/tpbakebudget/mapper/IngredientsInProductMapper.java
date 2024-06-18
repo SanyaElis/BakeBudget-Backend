@@ -1,6 +1,6 @@
 package cs.vsu.ru.tpbakebudget.mapper;
 
-import cs.vsu.ru.tpbakebudget.dto.responce.products.IngredientsInProductResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.products.IngredientsInProductResponseDTO;
 import cs.vsu.ru.tpbakebudget.model.Ingredients;
 import cs.vsu.ru.tpbakebudget.model.IngredientsInProduct;
 import cs.vsu.ru.tpbakebudget.model.IngredientsInProductKey;

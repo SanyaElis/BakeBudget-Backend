@@ -1,6 +1,6 @@
 package cs.vsu.ru.tpbakebudget.component;
 
-import cs.vsu.ru.tpbakebudget.dto.responce.orders.IncomeResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.orders.IncomeResponseDTO;
 import cs.vsu.ru.tpbakebudget.enums.OrderStatus;
 import cs.vsu.ru.tpbakebudget.model.Orders;
 import cs.vsu.ru.tpbakebudget.model.Users;
