@@ -78,6 +78,7 @@ public class AuthControllerTests {
         signUpRequest.setEmail("test@example.com");
         signUpRequest.setPassword("password");
         when(usersService.findByEmail("test@example.com")).thenReturn(new Users());
-        assertThrows(UserAlreadyExistsException.class, () -> authController.registerUser(signUpRequest));
+        ResponseEntity<?> response = authController.registerUser(signUpRequest);
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 }
