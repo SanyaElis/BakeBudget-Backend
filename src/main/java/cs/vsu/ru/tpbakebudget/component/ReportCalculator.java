@@ -27,7 +27,6 @@ public class ReportCalculator {
     }
 
     public Map<String, Integer> calculateByOrders(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt){
-        //List<Orders> orders = ordersService.findByUserIdAndCreationDateBetweenAndFinishDateBetween(userId, startCreatedAt, endCreatedAt, startFinishedAt, endFinishedAt);
         List<Orders> createdOrders = ordersService.findByUserIdAndCreationDateBetween(userId, startCreatedAt, endCreatedAt);
         List<Orders> finishedOrders = ordersService.findByUserIdAndFinishDateBetween(userId, startFinishedAt, endFinishedAt);
 
@@ -104,7 +103,6 @@ public class ReportCalculator {
     }
 
     public IncomeResponseDTO calculateByIncome(Long userId, LocalDate startCreatedAt, LocalDate endCreatedAt, LocalDate startFinishedAt, LocalDate endFinishedAt){
-        //List<Orders> orders = ordersService.findByUserIdAndCreationDateBetweenAndFinishDateBetween(userId, startCreatedAt, endCreatedAt, startFinishedAt, endFinishedAt);
         List<Orders> orders = ordersService.findByUserIdAndFinishDateBetween(userId, startFinishedAt, endFinishedAt);
 
         double selfCost = 0;
@@ -113,7 +111,7 @@ public class ReportCalculator {
             if(order.getStatus() == OrderStatus.CANCELLED){
                 continue;
             }
-            selfCost += order.getCostPrice() + order.getExtraExpenses();
+            selfCost += order.getCostPrice();
             income += order.getFinalCost();
         }
 

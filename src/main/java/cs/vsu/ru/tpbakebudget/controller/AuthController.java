@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -85,7 +86,7 @@ public class AuthController {
     })
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         if (usersService.findByEmail(signUpRequest.getEmail()) != null) {
-            throw new UserAlreadyExistsException("User with email " + signUpRequest.getEmail() + " already exists");
+            return new ResponseEntity<>("User with email " + signUpRequest.getEmail() + " already exists", HttpStatus.CONFLICT);
         } else {
             Users user = new Users(signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getPassword());
             usersService.save(user);
