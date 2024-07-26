@@ -1,6 +1,7 @@
 package cs.vsu.ru.tpbakebudget.exception.handler;
 
 import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
+import cs.vsu.ru.tpbakebudget.exception.TokenRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

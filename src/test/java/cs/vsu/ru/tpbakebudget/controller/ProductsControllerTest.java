@@ -5,6 +5,7 @@ import cs.vsu.ru.tpbakebudget.dto.response.products.ProductsResponseDTO;
 import cs.vsu.ru.tpbakebudget.mapper.ProductsMapper;
 import cs.vsu.ru.tpbakebudget.model.Products;
 import cs.vsu.ru.tpbakebudget.model.Users;
+import cs.vsu.ru.tpbakebudget.service.impl.OrdersServiceImpl;
 import cs.vsu.ru.tpbakebudget.service.impl.ProductsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ class ProductsControllerTest {
 
     @Mock
     private ProductsServiceImpl productsService;
+
+    @Mock
+    private OrdersServiceImpl ordersService;
 
     @Mock
     private ProductsMapper productsMapper;

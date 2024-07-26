@@ -2,8 +2,8 @@ package cs.vsu.ru.tpbakebudget.controller;
 
 import cs.vsu.ru.tpbakebudget.dto.auth.PasswordChangeRequestDTO;
 import cs.vsu.ru.tpbakebudget.enums.Role;
-import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.model.Users;
+import cs.vsu.ru.tpbakebudget.security.RefreshTokenService;
 import cs.vsu.ru.tpbakebudget.service.impl.UsersServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,9 +27,12 @@ public class UsersController {
 
     private final UsersServiceImpl usersService;
 
+    private final RefreshTokenService refreshTokenService;
+
     @Autowired
-    public UsersController(UsersServiceImpl usersService) {
+    public UsersController(UsersServiceImpl usersService, RefreshTokenService refreshTokenService) {
         this.usersService = usersService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PutMapping("/updatePassword")
@@ -230,5 +233,24 @@ public class UsersController {
         users.setGroupCode(null);
         usersService.update(users);
         return ResponseEntity.ok("Role successfully updated");
+    }
+
+    @PostMapping("/signOut")
+    @Operation(summary = "Sign Out", description = "Log out the authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User logged out successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Internal server error")))
+    })
+    public ResponseEntity<?> logoutUser() {
+        Users users = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        refreshTokenService.deleteByUserId(users.getId());
+        return ResponseEntity.ok("Log out successful!");
     }
 }

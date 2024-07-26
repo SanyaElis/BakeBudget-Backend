@@ -8,9 +8,13 @@ import cs.vsu.ru.tpbakebudget.model.Products;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Component
 public class OrdersMapper {
+
     public OrdersResponseDTO toDto(Orders entity) {
         if (entity == null) {
             return null;
@@ -27,7 +31,10 @@ public class OrdersMapper {
         dto.setMarginFactor(entity.getMarginFactor());
         dto.setCreationDate(entity.getCreationDate());
         dto.setFinishDate(entity.getFinishDate());
-        dto.setProductId(entity.getProduct().getId());
+        dto.setMinioPictureName(entity.getMinioPictureName());
+        if(entity.getProduct() != null){
+            dto.setProductId(entity.getProduct().getId());
+        }
         return dto;
     }
 
@@ -42,7 +49,11 @@ public class OrdersMapper {
         entity.setExtraExpenses(dto.getExtraExpenses());
         entity.setFinalWeight(dto.getFinalWeight());
         entity.setMarginFactor(dto.getMarginFactor());
-        entity.setCreationDate(LocalDate.now());
+
+        ZonedDateTime nowInMoscow = ZonedDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime creationDateTimeInMoscow = nowInMoscow.toLocalDateTime();
+        entity.setCreationDate(creationDateTimeInMoscow.toLocalDate());
+
         entity.setProduct(product);
         return entity;
     }

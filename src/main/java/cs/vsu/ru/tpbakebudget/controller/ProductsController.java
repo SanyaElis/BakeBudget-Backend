@@ -13,6 +13,7 @@ import cs.vsu.ru.tpbakebudget.minio.ProductPicture;
 import cs.vsu.ru.tpbakebudget.model.*;
 import cs.vsu.ru.tpbakebudget.service.impl.IngredientsInProductServiceImpl;
 import cs.vsu.ru.tpbakebudget.service.impl.IngredientsServiceImpl;
+import cs.vsu.ru.tpbakebudget.service.impl.OrdersServiceImpl;
 import cs.vsu.ru.tpbakebudget.service.impl.ProductsServiceImpl;
 import io.minio.errors.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,16 +49,19 @@ public class ProductsController {
 
     private final IngredientsInProductServiceImpl ingredientsInProductService;
 
+    private final OrdersServiceImpl ordersService;
+
     private final ProductsMapper productsMapper;
 
     private final IngredientsInProductMapper ingredientsInProductMapper;
 
     private final MinioTemplate template;
 
-    public ProductsController(ProductsServiceImpl productsService, IngredientsServiceImpl ingredientsService, IngredientsInProductServiceImpl ingredientsInProductService, ProductsMapper productsMapper, IngredientsInProductMapper ingredientsInProductMapper, MinioTemplate template) {
+    public ProductsController(ProductsServiceImpl productsService, IngredientsServiceImpl ingredientsService, IngredientsInProductServiceImpl ingredientsInProductService, OrdersServiceImpl ordersService, ProductsMapper productsMapper, IngredientsInProductMapper ingredientsInProductMapper, MinioTemplate template) {
         this.productsService = productsService;
         this.ingredientsService = ingredientsService;
         this.ingredientsInProductService = ingredientsInProductService;
+        this.ordersService = ordersService;
         this.productsMapper = productsMapper;
         this.ingredientsInProductMapper = ingredientsInProductMapper;
         this.template = template;
@@ -204,7 +208,6 @@ public class ProductsController {
                             examples = @ExampleObject(value = "Internal server error")))
     })
     public ResponseEntity<?> deleteProductById(@PathVariable Long id) {
-        productsService.findById(id);
         productsService.delete(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
