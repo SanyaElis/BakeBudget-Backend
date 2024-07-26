@@ -5,14 +5,18 @@ import cs.vsu.ru.tpbakebudget.dto.request.calculation.CalculationRequestDTO;
 import cs.vsu.ru.tpbakebudget.dto.request.orders.OrdersRequestDTO;
 import cs.vsu.ru.tpbakebudget.dto.response.calculation.CalculationResponseDTO;
 import cs.vsu.ru.tpbakebudget.dto.response.orders.OrdersResponseDTO;
+import cs.vsu.ru.tpbakebudget.dto.response.products.GetPictureDTO;
 import cs.vsu.ru.tpbakebudget.enums.OrderStatus;
+import cs.vsu.ru.tpbakebudget.exception.NotFoundException;
 import cs.vsu.ru.tpbakebudget.mapper.CalculationMapper;
 import cs.vsu.ru.tpbakebudget.mapper.OrdersMapper;
+import cs.vsu.ru.tpbakebudget.minio.MinioTemplate;
 import cs.vsu.ru.tpbakebudget.model.Orders;
 import cs.vsu.ru.tpbakebudget.model.Products;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import cs.vsu.ru.tpbakebudget.service.impl.OrdersServiceImpl;
 import cs.vsu.ru.tpbakebudget.service.impl.ProductsServiceImpl;
+import io.minio.errors.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +34,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +49,8 @@ public class OrdersController {
 
     private final ProductsServiceImpl productsService;
 
+    private final MinioTemplate template;
+
     private final CalculationMapper calculationMapper;
 
     private final OrdersMapper ordersMapper;
@@ -49,9 +58,10 @@ public class OrdersController {
     private final CostCounter costCounter;
 
     @Autowired
-    public OrdersController(OrdersServiceImpl ordersService, ProductsServiceImpl productsService, CalculationMapper calculationMapper, OrdersMapper ordersMapper, CostCounter costCounter) {
+    public OrdersController(OrdersServiceImpl ordersService, ProductsServiceImpl productsService, MinioTemplate template, CalculationMapper calculationMapper, OrdersMapper ordersMapper, CostCounter costCounter) {
         this.ordersService = ordersService;
         this.productsService = productsService;
+        this.template = template;
         this.calculationMapper = calculationMapper;
         this.ordersMapper = ordersMapper;
         this.costCounter = costCounter;
@@ -246,7 +256,9 @@ public class OrdersController {
                             schema = @Schema(implementation = String.class),
                             examples = @ExampleObject(value = "Internal server error")))
     })
-    public ResponseEntity<?> deleteOrderById(@PathVariable Long id) {
+    public ResponseEntity<?> deleteOrderById(@PathVariable Long id) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Orders order = ordersService.findById(id);
+        template.deleteFile(order.getMinioPictureName());
         ordersService.delete(id);
         return ResponseEntity.ok("Order deleted successfully");
     }
@@ -280,5 +292,34 @@ public class OrdersController {
         } else {
             throw new BadCredentialsException("Unsupported status");
         }
+    }
+
+    @GetMapping(value = "/getPictureRemovedProduct/{id}")
+    @Operation(summary = "Get Order Picture", description = "Get the picture of a order by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order picture retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Unauthorized"))),
+            @ApiResponse(responseCode = "404", description = "Order not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Order not found"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Internal server error")))
+    })
+    public ResponseEntity<?> getPictureOfOrder(@PathVariable Long id) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Orders orders = ordersService.findById(id);
+        if (orders.getMinioPictureName() == null) {
+            throw new NotFoundException("Order picture not found");
+        }
+        String url = template.getPresignedUrl(orders.getMinioPictureName());
+        GetPictureDTO getPictureDTO = new GetPictureDTO();
+        getPictureDTO.setLink(url);
+
+        return new ResponseEntity<>(getPictureDTO, HttpStatus.OK);
     }
 }

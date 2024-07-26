@@ -7,13 +7,15 @@ import lombok.Data;
 public class JwtToken {
     private String token;
     private String type = "Bearer";
+    private String refreshToken;
     private Long id;
     private String username;
     private String email;
     private Role role;
 
-    public JwtToken(String accessToken, Long id, String username, String email, Role role) {
+    public JwtToken(String accessToken, String refreshToken, Long id, String username, String email, Role role) {
         this.token = accessToken;
+        this.refreshToken = refreshToken;
         this.id = id;
         this.username = username;
         this.email = email;

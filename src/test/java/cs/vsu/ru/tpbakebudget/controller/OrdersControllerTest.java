@@ -8,11 +8,13 @@ import cs.vsu.ru.tpbakebudget.dto.response.orders.OrdersResponseDTO;
 import cs.vsu.ru.tpbakebudget.enums.OrderStatus;
 import cs.vsu.ru.tpbakebudget.mapper.CalculationMapper;
 import cs.vsu.ru.tpbakebudget.mapper.OrdersMapper;
+import cs.vsu.ru.tpbakebudget.minio.MinioTemplate;
 import cs.vsu.ru.tpbakebudget.model.Orders;
 import cs.vsu.ru.tpbakebudget.model.Products;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import cs.vsu.ru.tpbakebudget.service.impl.OrdersServiceImpl;
 import cs.vsu.ru.tpbakebudget.service.impl.ProductsServiceImpl;
+import io.minio.errors.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -23,6 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,12 +52,15 @@ class OrdersControllerTest {
     @Mock
     private CostCounter costCounter;
 
+    @Mock
+    private MinioTemplate template;
+
     private OrdersController ordersController;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ordersController = new OrdersController(ordersService, productsService, calculationMapper, ordersMapper, costCounter);
+        ordersController = new OrdersController(ordersService, productsService, template, calculationMapper, ordersMapper, costCounter);
 
         Users mockUser = new Users();
         mockUser.setId(1L);
@@ -244,7 +252,15 @@ class OrdersControllerTest {
     }
 
     @Test
-    void testDeleteOrderById() {
+    void testDeleteOrderById() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        Orders mockOrder = new Orders();
+        mockOrder.setId(1L);
+        mockOrder.setMinioPictureName("test-picture.jpg");
+
+        when(ordersService.findById(1L)).thenReturn(mockOrder);
+
+        doNothing().when(template).deleteFile("test-picture.jpg");
+
         doNothing().when(ordersService).delete(1L);
 
         ResponseEntity<?> response = ordersController.deleteOrderById(1L);

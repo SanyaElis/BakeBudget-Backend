@@ -41,13 +41,16 @@ public class Orders {
     @Temporal(TemporalType.DATE)
     private LocalDate finishDate;
 
+    @Column
+    private String minioPictureName;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private Users user;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = true)
     @JsonIgnore
     private Products product;
 

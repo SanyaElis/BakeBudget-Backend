@@ -3,6 +3,7 @@ package cs.vsu.ru.tpbakebudget.controller;
 import cs.vsu.ru.tpbakebudget.dto.auth.PasswordChangeRequestDTO;
 import cs.vsu.ru.tpbakebudget.enums.Role;
 import cs.vsu.ru.tpbakebudget.model.Users;
+import cs.vsu.ru.tpbakebudget.security.RefreshTokenService;
 import cs.vsu.ru.tpbakebudget.service.impl.UsersServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,12 +27,15 @@ class UsersControllerTest {
     @Mock
     private UsersServiceImpl usersService;
 
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     private UsersController usersController;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        usersController = new UsersController(usersService);
+        usersController = new UsersController(usersService, refreshTokenService);
 
         Users mockUser = new Users();
         mockUser.setId(1L);

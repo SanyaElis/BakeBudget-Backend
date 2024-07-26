@@ -51,7 +51,7 @@ public class AuthControllerTests {
         Authentication authentication = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(user);
-        when(jwtUtils.generateJwtToken(authentication)).thenReturn("token");
+        when(jwtUtils.generateJwtTokenAuth(authentication)).thenReturn("token");
         ResponseEntity<?> response = authController.authenticateUser(signInRequest);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

@@ -1,11 +1,10 @@
 package cs.vsu.ru.tpbakebudget.controller;
 
-import cs.vsu.ru.tpbakebudget.dto.auth.JwtToken;
-import cs.vsu.ru.tpbakebudget.dto.auth.SignInRequest;
-import cs.vsu.ru.tpbakebudget.dto.auth.SignUpRequest;
+import cs.vsu.ru.tpbakebudget.dto.auth.*;
 import cs.vsu.ru.tpbakebudget.enums.Role;
-import cs.vsu.ru.tpbakebudget.exception.UserAlreadyExistsException;
+import cs.vsu.ru.tpbakebudget.model.RefreshToken;
 import cs.vsu.ru.tpbakebudget.model.Users;
+import cs.vsu.ru.tpbakebudget.security.RefreshTokenService;
 import cs.vsu.ru.tpbakebudget.security.jwt.JwtUtils;
 import cs.vsu.ru.tpbakebudget.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,11 +32,14 @@ public class AuthController {
 
     private final UsersService usersService;
 
+    private final RefreshTokenService refreshTokenService;
+
     private final JwtUtils jwtUtils;
 
-    public AuthController(AuthenticationManager authenticationManager, UsersService usersService, JwtUtils jwtUtils) {
+    public AuthController(AuthenticationManager authenticationManager, UsersService usersService, RefreshTokenService refreshTokenService, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
         this.usersService = usersService;
+        this.refreshTokenService = refreshTokenService;
         this.jwtUtils = jwtUtils;
     }
 
@@ -60,11 +62,14 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        String jwt = jwtUtils.generateJwtTokenAuth(authentication);
 
         Users user = (Users) authentication.getPrincipal();
 
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
+
         return ResponseEntity.ok(new JwtToken(jwt,
+                refreshToken,
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
@@ -92,5 +97,32 @@ public class AuthController {
             usersService.save(user);
             return ResponseEntity.ok("User registered successfully!");
         }
+    }
+
+    @PostMapping("/refreshToken")
+    @Operation(summary = "Refresh Token", description = "Refresh JWT token using the refresh token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid refresh token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Invalid refresh token"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = @ExampleObject(value = "Internal server error")))
+    })
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        RefreshToken token = refreshTokenService.findByToken(requestRefreshToken);
+        Users user = token.getUser();
+        String email = user.getEmail();
+        Role role = user.getRole();
+        refreshTokenService.verifyExpiration(token);
+        String jwt = jwtUtils.generateJwtTokenRefresh(email, role);
+        refreshTokenService.deleteByUserId(user.getId());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
+        return ResponseEntity.ok(new TokenRefreshResponse(jwt, refreshToken));
     }
 }

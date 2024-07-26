@@ -1,5 +1,6 @@
 package cs.vsu.ru.tpbakebudget.security.jwt;
 
+import cs.vsu.ru.tpbakebudget.enums.Role;
 import cs.vsu.ru.tpbakebudget.model.Users;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -23,13 +24,17 @@ public class JwtUtils {
     @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    public String generateJwtToken(Authentication authentication) {
-
+    public String generateJwtTokenAuth(Authentication authentication){
         Users users = (Users) authentication.getPrincipal();
 
+        return generateJwtTokenRefresh(users.getEmail(), users.getRole());
+    }
+
+    public String generateJwtTokenRefresh(String email, Role role) {
+
         return Jwts.builder()
-                .setSubject((users.getEmail()))
-                .claim("role", users.getRole())
+                .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)

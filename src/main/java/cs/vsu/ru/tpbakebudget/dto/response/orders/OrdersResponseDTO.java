@@ -29,6 +29,8 @@ public class OrdersResponseDTO {
 
     private LocalDate finishDate;
 
+    private String minioPictureName;
+
     private Long productId;
 }
 
